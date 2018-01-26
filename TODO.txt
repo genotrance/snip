@@ -1,0 +1,27 @@
+Features
+- README
+- Allow vertical scroll of code window
+- Add to Github and share
+- Dialog to enter strings
+- Save file
+- Create gist from data
+- Change existing gist
+- Nimsuggest integration
+- Highlight code errors
+- Nim flags from CLI into nim.cfg
+- Highlighting colors from table
+- Clear buffer
+- Delete line
+- Highlight multi-char comments - //
+- Highlight multi-line comments - /* */
+- Highlight functions, variables
+- Handle horizontal scroll
+
+Improvements
+- Improve redraw algorithm for speed
+- Fix timing of compilation output showing up
+- Clean up key sort order - affects maps
+- Clean up keymap - load into table at compile time instead of string
+- Add TO_TAB action to generate file with tabs
+- Undo on Windows broken
+- Add CTRL_HOME and CTRL_END codes
