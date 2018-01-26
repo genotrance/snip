@@ -1,15 +1,14 @@
 Features
-- README
-- Allow vertical scroll of code window
-- Add to Github and share
 - Dialog to enter strings
 - Save file
 - Create gist from data
 - Change existing gist
 - Nimsuggest integration
 - Highlight code errors
+- Command line arguments to generated executable
+- Command line arguments to compiler
 - Nim flags from CLI into nim.cfg
-- Highlighting colors from table
+- User defined color scheme
 - Clear buffer
 - Delete line
 - Highlight multi-char comments - //
@@ -18,10 +17,11 @@ Features
 - Handle horizontal scroll
 
 Improvements
-- Improve redraw algorithm for speed
+- Complete implementation of vertical scroll of code window
 - Fix timing of compilation output showing up
 - Clean up key sort order - affects maps
 - Clean up keymap - load into table at compile time instead of string
 - Add TO_TAB action to generate file with tabs
 - Undo on Windows broken
 - Add CTRL_HOME and CTRL_END codes
+- Highlighting colors from table
