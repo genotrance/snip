@@ -122,12 +122,12 @@ proc writeCode*() {.inline.} =
     var h = 0
     for i in COFFSET .. BUFFER.len()-1:
         LINE = h
-        writeTerm(BUFFER[i])
+        writeTerm(BUFFER[i].substr(0, WIDTH-MARGIN-1))
         if h == HEIGHT-WINDOW-1:
             break
         h += 1
 
-    if LASTBUFFER.len() > BUFFER.len():
+    if LASTBUFFER.len() > BUFFER.len() and BUFFER.len() < HEIGHT-WINDOW-1:
         setCursorPos(0, h)
         eraseLine()
 
@@ -154,7 +154,7 @@ proc writeOutput*() {.inline.} =
             var ed = st+WINDOW-4
             if ed > OUTLINES-1:
                 ed = OUTLINES-1
-
+            
             echo o[st..ed].join("\n")
         else:
             echo o.join("\n")
@@ -178,7 +178,7 @@ proc redraw*() =
 
 proc redrawLine*() =
     hideCursor()
-    writeTerm(BUFFER[LINE+COFFSET])
+    writeTerm(BUFFER[LINE+COFFSET].substr(0, WIDTH-MARGIN-1))
     lcol()
 
 proc writeHelp*(help: string) =

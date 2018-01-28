@@ -47,12 +47,12 @@ proc cursorLeftHelper(redraw=true) =
     else:
         if LINE > 0:
             LINE -= 1
-            COL = BUFFER[LINE+COFFSET].len()
+            COL = min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len())
             if redraw: lcol()
         else:
             if COFFSET > 0:
                 COFFSET -= 1
-                COL = BUFFER[LINE+COFFSET].len()
+                COL = min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len())
                 if redraw: redraw()
 
 proc cursorLeft*() =
@@ -76,20 +76,19 @@ proc cursorDown*() =
     cursorDownHelper()
 
 proc cursorRightHelper(redraw=true) =
-    if COL < WIDTH-MARGIN:
-        if COL < BUFFER[LINE+COFFSET].len():
-            COL += 1
-            if redraw: lcol()
-        else:
-            if LINE+COFFSET < BUFFER.len()-1:
-                if LINE < HEIGHT-WINDOW-1:
-                    LINE += 1
-                    COL = 0
-                    if redraw: lcol()
-                else:
-                    COFFSET += 1
-                    COL = 0
-                    if redraw: redraw()
+    if COL < min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len()):
+        COL += 1
+        if redraw: lcol()
+    else:
+        if LINE+COFFSET < BUFFER.len()-1:
+            if LINE < HEIGHT-WINDOW-1:
+                LINE += 1
+                COL = 0
+                if redraw: lcol()
+            else:
+                COFFSET += 1
+                COL = 0
+                if redraw: redraw()
 
 proc cursorRight*() =
     cursorRightHelper()
@@ -120,16 +119,16 @@ proc cursorTop*() =
 proc cursorBottom*() =
     if BUFFER.len()-1 < HEIGHT-WINDOW-1:
         LINE = BUFFER.len()-1
-        COL = BUFFER[LINE+COFFSET].len()
+        COL = min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len())
         lcol()
     else:
         COFFSET = BUFFER.len()-1-HEIGHT+WINDOW+1
         LINE = HEIGHT-WINDOW-1
-        COL = BUFFER[BUFFER.len()-1].len()
+        COL = min(WIDTH-MARGIN-1, BUFFER[BUFFER.len()-1].len())
         redraw()
 
 proc cursorEnd*() =
-    COL = BUFFER[LINE+COFFSET].len()
+    COL = min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len())
     lcol()
 
 proc cursorStart*() =
@@ -137,12 +136,12 @@ proc cursorStart*() =
     lcol()
 
 proc cursorPageDown*() =
-    for i in 1 .. (HEIGHT-WINDOW).shr(1):
+    for i in 1 .. (HEIGHT-WINDOW).shr(1)-1:
         cursorDownHelper(false)
     redraw()
 
 proc cursorPageUp*() =
-    for i in 1 .. (HEIGHT-WINDOW).shr(1):
+    for i in 1 .. (HEIGHT-WINDOW).shr(1)-1:
         cursorUpHelper(false)
     redraw()
 
@@ -219,11 +218,16 @@ proc eraseLeftHelper(redraw=true) =
         COL -= 1
         if redraw: redrawLine()
     else:
-        if LINE > 0:
+        if LINE > 0 or COFFSET > 0:
             COL = BUFFER[LINE+COFFSET-1].len()
             BUFFER[LINE+COFFSET-1] = BUFFER[LINE+COFFSET-1] & BUFFER[LINE+COFFSET]
             BUFFER.delete(LINE+COFFSET)
-            LINE -= 1
+            if COFFSET > 0:
+                COFFSET -= 1
+            elif LINE > 0:
+                LINE -= 1
+            if COL > WIDTH-MARGIN-1:
+                COL = WIDTH-MARGIN-1
             if redraw: redraw()
 
 proc eraseLeft*() =
@@ -231,6 +235,12 @@ proc eraseLeft*() =
 
 proc eraseLeftWord*() =
     ctrlfuncLeft(eraseLeftHelper, redraw)
+
+proc eraseLeftLine*() =
+    for i in 0 .. COL-1:
+        eraseLeftHelper(false)
+    COL = 0
+    redrawLine()
 
 proc eraseRightHelper(redraw=true) =
     if COL < BUFFER[LINE+COFFSET].len():
@@ -248,19 +258,26 @@ proc eraseRight*() =
 proc eraseRightWord*() =
     ctrlfuncRight(eraseRightHelper, redraw)
 
+proc eraseRightLine*() =
+    for i in COL .. BUFFER[LINE+COFFSET].len()-1:
+        eraseRightHelper(false)
+    redrawLine()
+
 # Adding chars
 
 proc addNewline*() =
-    if LINE < HEIGHT-WINDOW-1:
-        if COL <= BUFFER[LINE+COFFSET].len():
-            let br = BUFFER[LINE+COFFSET].substr(COL)
-            BUFFER[LINE+COFFSET] = BUFFER[LINE+COFFSET].substr(0, COL-1)
-            if COL == BUFFER[LINE+COFFSET].len()-1:
-                BUFFER.add("")
-            else:
-                BUFFER.insert(br, LINE+COFFSET+1)
+    if COL <= BUFFER[LINE+COFFSET].len():
+        let br = BUFFER[LINE+COFFSET].substr(COL)
+        BUFFER[LINE+COFFSET] = BUFFER[LINE+COFFSET].substr(0, COL-1)
+        if COL == BUFFER[LINE+COFFSET].len()-1:
+            BUFFER.insert("", LINE+COFFSET+1)
+        else:
+            BUFFER.insert(br, LINE+COFFSET+1)
+        if LINE == HEIGHT-WINDOW-1:
+            COFFSET += 1
+        else:
             LINE += 1
-            COL = 0
+        COL = 0
         compile()
         redraw()
 
@@ -271,6 +288,8 @@ proc addChar*() =
         let br = BUFFER[LINE+COFFSET].substr(COL)
         BUFFER[LINE+COFFSET] = BUFFER[LINE+COFFSET].substr(0, COL-1) & LASTCHAR & br
     COL += 1
+    if COL > WIDTH-MARGIN-1:
+        COL = WIDTH-MARGIN-1
     redrawLine()
 
 proc addSpace() =
@@ -305,8 +324,10 @@ proc loadActions*() =
     ACTIONMAP[ERASE_RIGHT] = eraseRight
     ACTIONMAP[ERASE_LEFT_WORD] = eraseLeftWord
     ACTIONMAP[ERASE_RIGHT_WORD] = eraseRightWord
+    ACTIONMAP[ERASE_LEFT_LINE] = eraseLeftLine
+    ACTIONMAP[ERASE_RIGHT_LINE] = eraseRightLine
     ACTIONMAP[NEWLINE] = addNewline
-    ACTIONMAP[CLEAR] = doClear
+    ACTIONMAP[CLEAR_SCREEN] = doClear
     ACTIONMAP[HELP] = doHelp
     ACTIONMAP[PREV_MODE] = doPrevMode
     ACTIONMAP[NEXT_MODE] = doNextMode

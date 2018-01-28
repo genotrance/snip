@@ -9,16 +9,17 @@ Features
 - Command line arguments to compiler
 - Nim flags from CLI into nim.cfg
 - User defined color scheme
-- Clear buffer
-- Delete line
 - Highlight multi-char comments - //
 - Highlight multi-line comments - /* */
 - Highlight functions, variables
 - Handle horizontal scroll
+- OS specific key map due to variability in key detection/availability
 
 Improvements
-- Complete implementation of vertical scroll of code window
+- Fix highlighting loss if line too long
 - Fix timing of compilation output showing up
+- doRun() doesn't work if sniptest 2
+- Last line refresh issue if sniptest 3
 - Clean up key sort order - affects maps
 - Clean up keymap - load into table at compile time instead of string
 - Add TO_TAB action to generate file with tabs
