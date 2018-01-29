@@ -67,6 +67,7 @@ proc init() =
     loadActions()
     parseCli()
     setupCompiler()
+    setupKey()
     redraw()
 
 init()

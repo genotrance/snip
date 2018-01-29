@@ -38,6 +38,7 @@ proc lcol*() =
     setForegroundColor(fgWhite)
     setCursorPosPortable(COL+MARGIN, LINE)
     showCursor()
+    stdout.flushFile()
 
 proc split() {.inline.} =
     setCursorPosPortable(0, HEIGHT-WINDOW)
@@ -143,7 +144,7 @@ proc clearOutput() {.inline.} =
     setCursorPosPortable(0, HEIGHT-WINDOW+1)
 
 proc writeOutput*() {.inline.} =
-    if (getOutput() or LWOFFSET != WOFFSET) and LASTOUTPUT != "":
+    if getOutput() or LWOFFSET != WOFFSET:
         let ln = LINE
 
         hideCursor()
@@ -169,6 +170,7 @@ proc writeOutput*() {.inline.} =
         LINE = ln
         setCursorPosPortable(COL+MARGIN, LINE)
         showCursor()
+        stdout.flushFile()
 
 proc redraw*() =
     (WIDTH, HEIGHT) = terminalSize()

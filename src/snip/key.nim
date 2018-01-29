@@ -1,9 +1,13 @@
 import strutils
 import tables
+import threadpool
 
 import ./globals
 import ./keymap
 import ./ui
+
+var KCH*: Channel[string]
+KCH.open()
 
 when defined(windows):
     proc getch(): char {.header: "<conio.h>", importc: "getch".}
@@ -34,9 +38,9 @@ proc getKey*(): string {.inline.} =
         disable_raw_mode()
 
 proc handleKey*() =
-    var code = getKey()
+    var (ready, code) = KCH.tryRecv()
     
-    if code != "":
+    if ready:
         if KEYMAP.hasKey(code):
             let key = KEYMAP[code]
             if KEYACTION.hasKey(key):
@@ -46,6 +50,17 @@ proc handleKey*() =
         else:
             ACTIONMAP[DEFAULT]()
         lcol()
+
+proc startKey() {.thread.} =
+    var code = ""
+    while true:
+        code = getKey()
+        if code != "":
+            if not KCH.trySend(code):
+                echo "Unable to send key"
+
+proc setupKey*() =
+    spawn startKey()
 
 when isMainModule:
     while true:
