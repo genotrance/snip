@@ -23,6 +23,5 @@ Improvements
 - Clean up key sort order - affects maps
 - Clean up keymap - load into table at compile time instead of string
 - Add TO_TAB action to generate file with tabs
-- Undo on Windows broken
-- Add CTRL_HOME and CTRL_END codes
+- Undo broken
 - Highlighting colors from table

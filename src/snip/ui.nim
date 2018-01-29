@@ -12,7 +12,7 @@ when defined(windows):
 else:
     var BRIGHT = true
     
-proc setCursorPosReset(x, y: int) =
+proc setCursorPosPortable(x, y: int) =
     when not defined(windows):
         setCursorPos(x+1, y+1)
     else:
@@ -25,27 +25,27 @@ proc clearScreen*() {.inline.} =
         stdout.write("\e[H\e[J")
     LINE = 0
     COL = 0
-    setCursorPosReset(COL, LINE)
+    setCursorPosPortable(COL, LINE)
 
 proc lcol*() =
     hideCursor()
-    setCursorPos(COL, HEIGHT-1)
+    setCursorPosPortable(COL, HEIGHT-1)
     eraseLine()
     setForegroundColor(fgYellow, BRIGHT)
     stdout.write("$#x$#    $#    $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)])
     if DEBUG:
         stdout.write("    " & STATUS)
     setForegroundColor(fgWhite)
-    setCursorPosReset(COL+MARGIN, LINE)
+    setCursorPosPortable(COL+MARGIN, LINE)
     showCursor()
 
 proc split() {.inline.} =
-    setCursorPos(0, HEIGHT-WINDOW)
+    setCursorPosPortable(0, HEIGHT-WINDOW)
     var s = ""
     for i in 0..WIDTH-1:
         s &= "_"
     stdout.write(s)
-    setCursorPosReset(COL, LINE)
+    setCursorPosPortable(COL, LINE)
 
 proc lineno(): string {.inline.} =
     result = $(LINE+COFFSET+1) & " "
@@ -94,7 +94,7 @@ iterator tokenizer(chunk: string): string {.inline.} =
         yield tok
 
 proc writeTerm(line: string) =
-    setCursorPos(0, LINE)
+    setCursorPosPortable(0, LINE)
     eraseLine()
     if MARGIN != 0:
         setForegroundColor(fgYellow, BRIGHT)
@@ -128,11 +128,11 @@ proc writeCode*() {.inline.} =
         h += 1
 
     if LASTBUFFER.len() > BUFFER.len() and BUFFER.len() < HEIGHT-WINDOW-1:
-        setCursorPos(0, h)
+        setCursorPosPortable(0, h)
         eraseLine()
 
     LINE = ln
-    setCursorPosReset(COL+MARGIN, LINE)
+    setCursorPosPortable(COL+MARGIN, LINE)
 
 proc writeOutput*() {.inline.} =
     let output = getOutput()
@@ -140,7 +140,7 @@ proc writeOutput*() {.inline.} =
         let ln = LINE
 
         hideCursor()        
-        setCursorPos(0, HEIGHT-WINDOW+1)
+        setCursorPosPortable(0, HEIGHT-WINDOW+1)
 
         let o = output.splitLines()
         OUTLINES = o.len()
@@ -160,7 +160,7 @@ proc writeOutput*() {.inline.} =
             echo o.join("\n")
 
         LINE = ln
-        setCursorPosReset(COL+MARGIN, LINE)
+        setCursorPosPortable(COL+MARGIN, LINE)
         showCursor()
 
 proc redraw*() =
