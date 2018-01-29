@@ -10,7 +10,7 @@ import times
 import ./globals
 
 # Channels for compiler
-var CCODE*: Channel[string]
+var CCODE*: Channel[tuple[mode, buffer: string]]
 var COUT*: Channel[string]
 CCODE.open(0)
 COUT.open(0)
@@ -266,25 +266,28 @@ proc compile*() =
     if BUFFER != LASTBUFFER:
         LASTOUTPUT = ""
         WOFFSET = 0
-        if not CCODE.trySend(BUFFER.join("\n").strip()):
+        if not CCODE.trySend((mode: MODE, buffer: BUFFER.join("\n").strip())):
             echo "Failed to send code for compilation"
 
-proc startCompiler(tempdir: string, modeinfo: Table[string, string]) {.thread.} =
+proc startCompiler(tempdir: string, modes: OrderedTable[string, Table[string, string]]) {.thread.} =
     var ready: bool
-    var buffer, code: string
+    var mode, code: string
+    var data: tuple[mode, buffer: string]
 
     while true:
         code = ""
         while true:
             # Get last buffer
-            (ready, buffer) = CCODE.tryRecv()
+            (ready, data) = CCODE.tryRecv()
             if ready:
-                code = buffer
+                code = data.buffer
+                mode = data.mode
             else:
                 break
+            sleep(100)
 
         if code != "":
-            if not COUT.trySend(run(code, tempdir, modeinfo)):
+            if not COUT.trySend(run(code, tempdir, modes[mode])):
                 echo "Failed to send execution output for display"
 
         sleep(100)
@@ -292,7 +295,7 @@ proc startCompiler(tempdir: string, modeinfo: Table[string, string]) {.thread.} 
 proc setupCompiler*() =
     if TEMPDIR == "": setDir()
 
-    spawn startCompiler(TEMPDIR, MODES[MODE])
+    spawn startCompiler(TEMPDIR, MODES)
 
 proc getOutput*(): bool =
     result = false
