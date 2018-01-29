@@ -10,7 +10,7 @@ import times
 import ./globals
 
 var LASTRUN = epochTime()
-var LASTBUFFER = ""
+var LASTCOMPILEBUFFER = ""
 var TEMPDIR = ""
 
 var KEYWORDS = initTable[string, seq[string]]()
@@ -265,9 +265,9 @@ proc compile*(foreground=false) =
     if TEMPDIR == "": setDir()
 
     let buffer = BUFFER.join("\n").strip()
-    if buffer != LASTBUFFER and epochTime() - LASTRUN > 2.0:
+    if buffer != LASTCOMPILEBUFFER and epochTime() - LASTRUN > 2.0:
         LASTRUN = epochTime()
-        LASTBUFFER = buffer
+        LASTCOMPILEBUFFER = buffer
         WOFFSET = 0
         if foreground:
             run(buffer, TEMPDIR, MODES[MODE])

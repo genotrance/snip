@@ -130,20 +130,27 @@ proc writeCode*() {.inline.} =
             break
         h += 1
 
-    if LASTBUFFER.len() > BUFFER.len() and BUFFER.len() < HEIGHT-WINDOW-1:
+    if LASTBUFFER.len() > BUFFER.len() and BUFFER.len()-1 < HEIGHT-WINDOW-1:
         setCursorPosPortable(0, h)
         eraseLine()
 
     LINE = ln
     setCursorPosPortable(COL+MARGIN, LINE)
 
+proc clearOutput() {.inline.} =
+    setCursorPosPortable(0, HEIGHT-WINDOW+1)
+    for i in 1 .. WINDOW-2:
+        eraseLine()
+        terminal.cursorDown(1)
+    setCursorPosPortable(0, HEIGHT-WINDOW+1)
+
 proc writeOutput*() {.inline.} =
     let output = getOutput()
     if output != "":
         let ln = LINE
 
-        hideCursor()        
-        setCursorPosPortable(0, HEIGHT-WINDOW+1)
+        hideCursor()
+        clearOutput()
 
         let o = output.splitLines()
         OUTLINES = o.len()
