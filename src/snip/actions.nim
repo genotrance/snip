@@ -266,7 +266,7 @@ proc eraseRightLine*() =
 # Adding chars
 
 proc addNewline*() =
-    if COL < BUFFER[LINE+COFFSET].len():
+    if COL <= BUFFER[LINE+COFFSET].len():
         let br = BUFFER[LINE+COFFSET].substr(COL)
         BUFFER[LINE+COFFSET] = BUFFER[LINE+COFFSET].substr(0, COL-1)
         if COL == BUFFER[LINE+COFFSET].len()-1:
