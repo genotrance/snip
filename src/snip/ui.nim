@@ -23,6 +23,7 @@ proc clearScreen*() {.inline.} =
         eraseScreen()
     else:
         stdout.write("\e[H\e[J")
+        stdout.flushFile()
     LINE = 0
     COL = 0
     setCursorPosPortable(COL, LINE)
@@ -35,6 +36,7 @@ proc lcol*() =
     stdout.write("$#x$#    $#    $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)])
     if DEBUG:
         stdout.write("    " & STATUS)
+    stdout.flushFile()
     setForegroundColor(fgWhite)
     setCursorPosPortable(COL+MARGIN, LINE)
     showCursor()
@@ -115,6 +117,7 @@ proc writeTerm(line: string) =
             setForegroundColor(fgRed, BRIGHT)
         stdout.write(tok)
         setForegroundColor(fgWhite)
+    stdout.flushFile()
 
 proc writeCode*() {.inline.} =
     let ln = LINE

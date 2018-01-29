@@ -136,14 +136,16 @@ proc cursorStart*() =
     lcol()
 
 proc cursorPageDown*() =
-    for i in 1 .. (HEIGHT-WINDOW).shr(1)-1:
-        cursorDownHelper(false)
-    redraw()
+    if LINE+COFFSET < BUFFER.len()-1:
+        for i in 1 .. (HEIGHT-WINDOW).shr(1)-1:
+            cursorDownHelper(false)
+        redraw()
 
 proc cursorPageUp*() =
-    for i in 1 .. (HEIGHT-WINDOW).shr(1)-1:
-        cursorUpHelper(false)
-    redraw()
+    if LINE+COFFSET > 0:
+        for i in 1 .. (HEIGHT-WINDOW).shr(1)-1:
+            cursorUpHelper(false)
+        redraw()
 
 # Output window
 

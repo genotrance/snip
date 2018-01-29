@@ -19,6 +19,9 @@ template typeStr(str: string) =
         addChar()
 
 proc test1() =
+    doHelp()
+    sleep(750)
+
     doLoad("snip.nimble")
 
     # Cursor up/down/left/right
