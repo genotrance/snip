@@ -18,7 +18,6 @@ Features
 
 Improvements
 - Fix highlighting loss if line too long
-- Fix timing of compilation output showing up
 - doRun() doesn't work if sniptest 2
 - Last line refresh issue if sniptest 3
 - Clean up key sort order - affects maps
@@ -26,3 +25,4 @@ Improvements
 - Add TO_TAB action to generate file with tabs
 - Undo broken
 - Highlighting colors from table
+- Remove F5 - Run once auto-compile is stable

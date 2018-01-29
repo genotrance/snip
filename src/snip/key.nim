@@ -32,21 +32,19 @@ proc getKey*(): string {.inline.} =
 
     when not defined(windows):
         disable_raw_mode()
- 
+
 proc handleKey*() =
     var code = getKey()
     
     if code != "":
         if KEYMAP.hasKey(code):
             let key = KEYMAP[code]
-            STATUS = $key & " " & code
             if KEYACTION.hasKey(key):
                 let ac = KEYACTION[key]
                 if ACTIONMAP.hasKey(ac):
                     ACTIONMAP[ac]()
         else:
             ACTIONMAP[DEFAULT]()
-            STATUS = $DEFAULT & " " & code
         lcol()
 
 when isMainModule:

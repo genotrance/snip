@@ -9,8 +9,12 @@ import times
 
 import ./globals
 
-var LASTRUN = epochTime()
-var LASTCOMPILEBUFFER = ""
+# Channels for compiler
+var CCODE*: Channel[string]
+var COUT*: Channel[string]
+CCODE.open(0)
+COUT.open(0)
+
 var TEMPDIR = ""
 
 var KEYWORDS = initTable[string, seq[string]]()
@@ -226,11 +230,12 @@ proc setDir() =
             f.writeLine("path: \"" & cd.replace("\\", "/") & "\"")
             f.close()
 
-proc run(buffer, tempdir: string, modeinfo: Table[string, string]) {.thread.} =
+proc run(buffer, tempdir: string, modeinfo: Table[string, string]): string =
     var 
         codefile = ""
         compile = ""
         execute = ""
+        error = 0
 
     if modeinfo.hasKey("codefile"):
         codefile = modeinfo["codefile"]
@@ -253,35 +258,54 @@ proc run(buffer, tempdir: string, modeinfo: Table[string, string]) {.thread.} =
         f.write(buffer)
         f.close()
 
-        var (output, error) = execCmdEx(compile & " " & codefile)
+        (result, error) = execCmdEx(compile & " " & codefile)
         if error == 0 and execute != "":
-            (output, error) = execCmdEx(execute)
+            (result, error) = execCmdEx(execute)
 
-        let o = open("out.txt", fmWrite)
-        o.write(output)
-        o.close()
+proc compile*() =
+    if BUFFER != LASTBUFFER:
+        LASTOUTPUT = ""
+        WOFFSET = 0
+        if not CCODE.trySend(BUFFER.join("\n").strip()):
+            echo "Failed to send code for compilation"
 
-proc compile*(foreground=false) =
+proc startCompiler(tempdir: string, modeinfo: Table[string, string]) {.thread.} =
+    var ready: bool
+    var buffer, code: string
+
+    while true:
+        code = ""
+        while true:
+            # Get last buffer
+            (ready, buffer) = CCODE.tryRecv()
+            if ready:
+                code = buffer
+            else:
+                break
+
+        if code != "":
+            if not COUT.trySend(run(code, tempdir, modeinfo)):
+                echo "Failed to send execution output for display"
+
+        sleep(100)
+
+proc setupCompiler*() =
     if TEMPDIR == "": setDir()
 
-    let buffer = BUFFER.join("\n").strip()
-    if buffer != LASTCOMPILEBUFFER and epochTime() - LASTRUN > 2.0:
-        LASTRUN = epochTime()
-        LASTCOMPILEBUFFER = buffer
-        WOFFSET = 0
-        if foreground:
-            run(buffer, TEMPDIR, MODES[MODE])
-        else:
-            spawn run(buffer, TEMPDIR, MODES[MODE])
+    spawn startCompiler(TEMPDIR, MODES[MODE])
 
-proc getOutput*(): string =
-    result = ""
-    if dirExists(TEMPDIR):
-        withDir TEMPDIR:
-            if fileExists("out.txt"):
-                let f = open("out.txt")
-                result = f.readAll()
-                f.close()
+proc getOutput*(): bool =
+    result = false
+    var ready: bool
+    var buffer: string
+    while true:
+        # Get last output
+        (ready, buffer) = COUT.tryRecv()
+        if ready:
+            LASTOUTPUT = buffer
+            result = true
+        else:
+            break
 
 proc cleanup*() =
     if TEMPDIR != "":

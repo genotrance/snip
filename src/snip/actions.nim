@@ -153,13 +153,11 @@ proc scrollWindowDown*() =
     WOFFSET -= 1
     if WOFFSET < 0:
         WOFFSET = 0
-    redraw()
 
 proc scrollWindowUp*() =
     WOFFSET += 1
     if WOFFSET > OUTLINES-WINDOW+2:
         WOFFSET = OUTLINES-WINDOW+2
-    redraw()
 
 # Actions
 
@@ -171,8 +169,7 @@ proc doQuit*() =
     quit(0)
 
 proc doRun*() =
-    compile(foreground=true)
-    redraw()
+    compile()
 
 proc doRedraw*() =
     FORCE_REDRAW = true
@@ -280,7 +277,6 @@ proc addNewline*() =
         else:
             LINE += 1
         COL = 0
-        compile()
         redraw()
 
 proc addChar*() =

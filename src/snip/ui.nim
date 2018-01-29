@@ -34,8 +34,6 @@ proc lcol*() =
     eraseLine()
     setForegroundColor(fgYellow, BRIGHT)
     stdout.write("$#x$#    $#    $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)])
-    if DEBUG:
-        stdout.write("    " & STATUS)
     stdout.flushFile()
     setForegroundColor(fgWhite)
     setCursorPosPortable(COL+MARGIN, LINE)
@@ -145,14 +143,13 @@ proc clearOutput() {.inline.} =
     setCursorPosPortable(0, HEIGHT-WINDOW+1)
 
 proc writeOutput*() {.inline.} =
-    let output = getOutput()
-    if output != "":
+    if (getOutput() or LWOFFSET != WOFFSET) and LASTOUTPUT != "":
         let ln = LINE
 
         hideCursor()
         clearOutput()
 
-        let o = output.splitLines()
+        let o = LASTOUTPUT.splitLines()
         OUTLINES = o.len()
         if OUTLINES > WINDOW-2:
             var st = OUTLINES-WINDOW+2
@@ -181,7 +178,6 @@ proc redraw*() =
 
     writeCode()
     if FORCE_REDRAW: split()
-    writeOutput()
     lcol()
 
     FORCE_REDRAW = false

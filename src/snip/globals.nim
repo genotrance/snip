@@ -29,10 +29,10 @@ var MODE* = "nc"        # Backend mode
 
 # Debugging
 var DEBUG* = false
-var STATUS* = ""
 
 # Content
 var BUFFER* = @[""]
 var LASTBUFFER* = @[""]
+var LASTOUTPUT* = ""
 var MODES* = initOrderedTable[string, Table[string, string]]()
 var FORCE_REDRAW* = true

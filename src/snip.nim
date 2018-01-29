@@ -4,6 +4,7 @@ import strutils
 import tables
 
 import snip/actions
+import snip/compile
 import snip/globals
 import snip/key
 import snip/keymap
@@ -65,9 +66,13 @@ proc init() =
     loadMaps()
     loadActions()
     parseCli()
+    setupCompiler()
     redraw()
 
 init()
 while true:
     backup()
     handleKey()
+    compile()
+    sleep(10)
+    writeOutput()

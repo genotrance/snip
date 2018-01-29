@@ -3,6 +3,7 @@ import strutils
 import tables
 
 import snip/actions
+import snip/compile
 import snip/globals
 import snip/ui
 import snip/undo
@@ -14,7 +15,7 @@ template loop(call: proc(), count: int) =
 
 template typeStr(str: string) =
     for i in str:
-        sleep(75)
+        sleep(15)
         LASTCHAR = i
         addChar()
 
@@ -53,23 +54,17 @@ for i in 0 .. 30:
     echo i
 
 # Toggle line numbers
-# Scroll output window
 # Newline scrolls
+# Display and scroll output window
 # Delete and backspace test
     """)
+    doRun()
     sleep(750)
 
     # Line numbers
     doToggleLineNo()
     sleep(750)
     doToggleLineNo()
-
-    # Execution
-    doRun()
-
-    # Scroll output window
-    loop(scrollWindowUp, 10)
-    loop(scrollWindowDown, 10)
 
     # Output stays
     cursorBottom()
@@ -79,6 +74,18 @@ for i in 0 .. 30:
     typeStr("# Finally ending")
     cursorTop()
     sleep(750)
+
+    # Scroll output window
+    writeOutput()
+    sleep(75)
+    for i in 0 .. 5:
+        scrollWindowUp()
+        writeOutput()
+        sleep(75)
+    for i in 0 .. 5:
+        scrollWindowDown()
+        writeOutput()
+        sleep(75)
 
     # Erase chars ahead/back
     loop(eraseRight, 20)
@@ -125,11 +132,17 @@ Erase full line from end""")
     cursorUp()
     eraseLeftLine()
 
-var runtests = 1
+# Run compiler thread
+setupCompiler()
+
+var starttest = 1
+var endtest = 3
 var tests = @[test1, test2, test3]
 if commandLineParams().len() > 0:
-    runtests = parseInt(commandLineParams()[0])
-for i in runtests-1 .. tests.len()-1:
+    starttest = parseInt(commandLineParams()[0])
+if commandLineParams().len() > 1:
+    endtest = parseInt(commandLineParams()[1])
+for i in starttest-1 .. min(endtest-1, tests.len()-1):
     tests[i]()
 
 sleep(1000)
