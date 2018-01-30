@@ -185,8 +185,13 @@ proc doLoad*(src: string) =
     if fileExists(src):
         BUFFER = src.readFile().splitLines()
         FILENAME = src
-    elif src.len() > 4 and "http" == src[0..4]:
-        BUFFER = getGist(src).splitLines()
+    elif isUrl(src):
+        let body = getGist(src)
+        if body != "":
+            BUFFER = body.splitLines()
+            FILENAME = src
+        else:
+            popupMsg("URL failed to load: " & src)
     else:
         BUFFER = src.splitLines()
     doRedraw()
@@ -194,17 +199,28 @@ proc doLoad*(src: string) =
 proc doLoadDialog*() =
     dialog("Load file: ")
     let fn = getDialogKey(WIDTH-10)
-    if not fileExists(fn):
-        dialog("File not found: " & fn)
+    if (not isUrl(fn)) and (not fileExists(fn)):
+        popupMsg("File not found: " & fn)
     else:
         doLoad(fn)
 
 proc doSave(dst: string) =
-    let f = open(dst, fmWrite)
-    f.write(BUFFER.join("\n"))
-    f.close()
-    dialog("Saved to " & dst)
-    sleep(1500)
+    if "gist://" == dst:
+        let url = createGist()
+        if url != "":
+            FILENAME = url
+        else:
+            popupMsg("Create gist failed")
+            return
+    elif isUrl(dst):
+        popupMsg("Don't know how to update gists yet")
+        return
+    else:
+        let f = open(dst, fmWrite)
+        f.write(BUFFER.join("\n"))
+        f.close()
+        FILENAME = dst
+    popupMsg("Saved to " & FILENAME)
 
 proc doSaveDialog*() =
     if FILENAME != "":
@@ -218,11 +234,23 @@ proc doSaveDialog*() =
     if fn == "":
         return
     elif fileExists(fn):
-        dialog("Overwrite? [y/N]")
+        dialog("Overwrite [y/N]: ")
         yn = getDialogKey(nl=false).toLowerAscii()
     
     if yn == "y":
         doSave(fn)
+
+proc doSaveAs*() =
+    let fn = FILENAME
+    FILENAME = ""
+
+    doSaveDialog()
+
+    if FILENAME == "":
+        FILENAME = fn
+
+proc doCreateGist*() =
+    doSave("gist://")
 
 proc doClear*() =
     doLoad("")
@@ -363,6 +391,7 @@ proc loadActions*() =
     ACTIONMAP[ERASE_RIGHT_LINE] = eraseRightLine
     ACTIONMAP[NEWLINE] = addNewline
     ACTIONMAP[CLEAR_SCREEN] = doClear
+    ACTIONMAP[CREATE_GIST] = doCreateGist
     ACTIONMAP[LOAD_FILE] = doLoadDialog
     ACTIONMAP[HELP] = doHelp
     ACTIONMAP[NEXT_MODE] = doNextMode
@@ -372,6 +401,7 @@ proc loadActions*() =
     ACTIONMAP[REDRAW] = doRedraw
     ACTIONMAP[RUN] = doRun
     ACTIONMAP[SAVE_FILE] = doSaveDialog
+    ACTIONMAP[SAVE_AS] = doSaveAs
     ACTIONMAP[TO_2_SPACES] = add2Space
     ACTIONMAP[TO_4_SPACES] = add4Space
     ACTIONMAP[TO_8_SPACES] = add8Space

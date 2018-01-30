@@ -1,11 +1,13 @@
 import os
+import httpcore
 import httpclient
+import json
 import strutils
+import tables
 import uri
 
+import ./compile
 import ./globals
-
-var CLIENT: HttpClient
 
 proc getProxy*(): Proxy =
     ## Returns ``nil`` if no proxy is specified.
@@ -29,13 +31,17 @@ proc getProxy*(): Proxy =
     else:
       return nil
 
-proc getGist*(url: string): string =
-    if CLIENT == nil:
-        CLIENT = newHttpClient(proxy = getProxy())
+proc isUrl*(url: string): bool =
+    result = false
+    if "http://" == url.substr(0, 6) or "https://" == url.substr(0, 7):
+        result = true
 
+proc adjustUrl(url: string): string =
     var parsed = url.parseUri()
     if parsed.hostname == "gist.github.com":
         parsed.hostname = "gist.githubusercontent.com"
+        if parsed.path.split("/").len() == 2:
+            parsed.path = "/anonymous" & parsed.path
         parsed.path &= "/raw"
     elif parsed.hostname == "pastebin.com":
         if not ("raw" in parsed.path):
@@ -48,8 +54,34 @@ proc getGist*(url: string): string =
     if parsed.hostname in @["github.com", "www.github.com"]:
         parsed.path = parsed.path.replace("/blob/", "/raw/")
 
-    if DEBUG:
-        echo $parsed
-        discard stdin.readLine()
+    return $parsed
 
-    return CLIENT.getContent($parsed)
+proc getGist*(url: string): string =
+    result = ""
+    var client = newHttpClient(proxy = getProxy())
+
+    let r = client.get(adjustUrl(url))
+    if r.code().is2xx():
+        result = r.body
+
+proc createGist*(): string =
+    result = ""
+    var client = newHttpClient(proxy = getProxy())
+    var url = "https://api.github.com/gists"
+    var jsondata = %*
+        {
+            "description": "Snippet from snip",
+            "public": true,
+            "files": {
+                MODES[MODE]["codefile"]: {
+                    "content": BUFFER.join("\n").strip().replace("\"", "\\\"")
+                }
+            }
+        }
+
+    let r = client.post(url, $jsondata)
+    if r.code() == Http201:
+        result = "https://gist.github.com/anonymous/" & r.body.parseJson()["id"].getStr()
+        log("Created gist: " & result)
+    else:
+        log("Create gist failed: " & r.status & "\n" & r.body)

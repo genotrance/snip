@@ -1,5 +1,4 @@
 Features
-- Create gist from data
 - Change existing gist
 - Nimsuggest integration
 - Highlight code errors

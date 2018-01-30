@@ -5,6 +5,7 @@ import tables
 import snip/actions
 import snip/compile
 import snip/globals
+import snip/keymap
 import snip/ui
 import snip/undo
 
@@ -20,7 +21,7 @@ template typeStr(str: string) =
         addChar()
 
 proc test1() =
-    doHelp()
+    writeHelp(getKeyHelp())
     sleep(750)
 
     doLoad("snip.nimble")

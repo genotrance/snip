@@ -37,6 +37,10 @@ proc dialog*(text: string) =
     setForegroundColor(fgYellow, BRIGHT)
     writeFlush(text)
 
+proc popupMsg*(text: string) =
+    dialog(text)
+    sleep(1500)
+
 proc eraseLeftDialog*() =
     terminal.cursorBackward()
     stdout.write(" ")
@@ -48,7 +52,8 @@ proc lcol*() =
     setCursorPosPortable(0, HEIGHT-1)
     eraseLine()
     setForegroundColor(fgYellow, BRIGHT)
-    writeFlush("$#x$# | $# | $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)])
+    var fn = if FILENAME != "": " | " & FILENAME else: ""
+    writeFlush("$#x$# | $# | $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)] & fn)
     setForegroundColor(fgWhite)
     setCursorPosPortable(COL+MARGIN, LINE)
     showCursor()

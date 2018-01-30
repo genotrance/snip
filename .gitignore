@@ -3,6 +3,7 @@ nimcache
 *.exe
 *.swp
 *.zip
+*.log
 snip
 key
 buildmap

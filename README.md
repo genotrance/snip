@@ -22,7 +22,7 @@ __Features__
 * Support for various programming languages
 * Basic syntax highlighting
 * Output window showing results of compile / execution
-* Load code from local file, online gist/snippet
+* Load gist/snippet, create new gist
 * Custom key maps if desired
 
 There is a long [TODO](TODO.txt) list since ```snip``` is still under heavy development.
