@@ -1,6 +1,4 @@
 Features
-- Dialog to enter strings
-- Save file
 - Create gist from data
 - Change existing gist
 - Nimsuggest integration

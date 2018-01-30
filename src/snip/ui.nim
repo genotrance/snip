@@ -11,7 +11,7 @@ when defined(windows):
     var BRIGHT = false
 else:
     var BRIGHT = true
-    
+
 proc setCursorPosPortable(x, y: int) =
     when not defined(windows):
         setCursorPos(x+1, y+1)
@@ -28,9 +28,20 @@ proc clearScreen*() {.inline.} =
     COL = 0
     setCursorPosPortable(COL, LINE)
 
+proc dialog*(text: string) =
+    setCursorPosPortable(0, HEIGHT-1)
+    eraseLine()
+    setForegroundColor(fgYellow, BRIGHT)
+    stdout.write(text)
+
+proc eraseLeftDialog*() =
+    terminal.cursorBackward()
+    stdout.write(" ")
+    terminal.cursorBackward()
+
 proc lcol*() =
     hideCursor()
-    setCursorPosPortable(COL, HEIGHT-1)
+    setCursorPosPortable(0, HEIGHT-1)
     eraseLine()
     setForegroundColor(fgYellow, BRIGHT)
     stdout.write("$#x$#    $#    $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)])

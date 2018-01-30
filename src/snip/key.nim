@@ -37,6 +37,32 @@ proc getKey*(): string {.inline.} =
     when not defined(windows):
         disable_raw_mode()
 
+proc getDialogKey*(max=1, nl=true): string =
+    result = ""
+    var ready: bool
+    var code: string
+    while true:
+        (ready, code) = KCH.tryRecv()
+        
+        if ready:
+            if KEYMAP.hasKey(code):
+                let key = KEYMAP[code]
+                if key in [ENTER, CTRL_ENTER]:
+                    return
+                elif key == BACKSPACE:
+                    if result.len() != 0:
+                        result = result.substr(0, result.len()-2)
+                        eraseLeftDialog()
+                elif key in [ESC, CTRL_C]:
+                    return ""
+            else:
+                if result.len() < max:
+                    let rcode = code.parseInt().char
+                    result &= rcode
+                    stdout.write(rcode)
+                    if not nl:
+                        break
+
 proc handleKey*() =
     var (ready, code) = KCH.tryRecv()
     

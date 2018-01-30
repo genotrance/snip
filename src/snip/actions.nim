@@ -187,6 +187,24 @@ proc doLoad*(src: string) =
         BUFFER = src.splitLines()
     doRedraw()
 
+proc doSave*() =
+    dialog("Save to: ")
+    let fn = getDialogKey(WIDTH-10)
+    var yn = "y"
+
+    if fn == "":
+        return
+    elif fn.fileExists():
+        dialog("Overwrite? [y/N]")
+        yn = getDialogKey(nl=false).toLowerAscii()
+    
+    if yn == "y":
+        let f = open(fn, fmWrite)
+        f.write(BUFFER.join("\n").strip())
+        f.close()
+        dialog("Saved to " & fn)
+        sleep(1500)
+
 proc doClear*() =
     doLoad("")
 
@@ -333,6 +351,7 @@ proc loadActions*() =
     ACTIONMAP[REDO] = doRedo
     ACTIONMAP[REDRAW] = doRedraw
     ACTIONMAP[RUN] = doRun
+    ACTIONMAP[SAVE_FILE] = doSave
     ACTIONMAP[TO_2_SPACES] = add2Space
     ACTIONMAP[TO_4_SPACES] = add4Space
     ACTIONMAP[TO_8_SPACES] = add8Space

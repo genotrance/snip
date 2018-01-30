@@ -36,3 +36,9 @@ var LASTBUFFER* = @[""]
 var LASTOUTPUT* = ""
 var MODES* = initOrderedTable[string, Table[string, string]]()
 var FORCE_REDRAW* = true
+
+template log*(str: string) =
+    let f = open("snip.log", fmAppend)
+    f.writeLine(str)
+    f.flushFile()
+    f.close()
