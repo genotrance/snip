@@ -12,6 +12,10 @@ when defined(windows):
 else:
     var BRIGHT = true
 
+template writeFlush(str: string) =
+    stdout.write(str)
+    stdout.flushFile()
+
 proc setCursorPosPortable(x, y: int) =
     when not defined(windows):
         setCursorPos(x+1, y+1)
@@ -22,8 +26,7 @@ proc clearScreen*() {.inline.} =
     when defined(windows):
         eraseScreen()
     else:
-        stdout.write("\e[H\e[J")
-        stdout.flushFile()
+        writeFlush("\e[H\e[J")
     LINE = 0
     COL = 0
     setCursorPosPortable(COL, LINE)
@@ -32,20 +35,20 @@ proc dialog*(text: string) =
     setCursorPosPortable(0, HEIGHT-1)
     eraseLine()
     setForegroundColor(fgYellow, BRIGHT)
-    stdout.write(text)
+    writeFlush(text)
 
 proc eraseLeftDialog*() =
     terminal.cursorBackward()
     stdout.write(" ")
     terminal.cursorBackward()
+    stdout.flushFile()
 
 proc lcol*() =
     hideCursor()
     setCursorPosPortable(0, HEIGHT-1)
     eraseLine()
     setForegroundColor(fgYellow, BRIGHT)
-    stdout.write("$#x$#    $#    $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)])
-    stdout.flushFile()
+    writeFlush("$#x$# | $# | $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)])
     setForegroundColor(fgWhite)
     setCursorPosPortable(COL+MARGIN, LINE)
     showCursor()
@@ -56,7 +59,7 @@ proc split() {.inline.} =
     var s = ""
     for i in 0..WIDTH-1:
         s &= "_"
-    stdout.write(s)
+    writeFlush(s)
     setCursorPosPortable(COL, LINE)
 
 proc lineno(): string {.inline.} =

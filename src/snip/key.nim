@@ -60,6 +60,7 @@ proc getDialogKey*(max=1, nl=true): string =
                     let rcode = code.parseInt().char
                     result &= rcode
                     stdout.write(rcode)
+                    stdout.flushFile()
                     if not nl:
                         break
 
