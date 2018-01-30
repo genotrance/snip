@@ -48,7 +48,7 @@ type
 
         NEWLINE,
         
-        CLEAR_SCREEN, HELP, PREV_MODE, NEXT_MODE, QUIT, 
+        CLEAR_SCREEN, HELP, LOAD_FILE, NEXT_MODE, PREV_MODE, QUIT, 
         REDO, REDRAW, RUN, SAVE_FILE, TO_2_SPACES, TO_4_SPACES, TO_8_SPACES, 
         TOGGLE_LINES, UNDO, 
 
@@ -70,6 +70,7 @@ const KEYMAPSTRING_TABLE = (block:
 var KEYACTIONSTRING = """
     ESC = QUIT
     F2 = SAVE_FILE
+    F3 = LOAD_FILE
     F5 = RUN
     SHIFT_F6 = PREV_MODE
     F6 = NEXT_MODE
@@ -183,4 +184,4 @@ proc getKeyHelp*(): string =
     for key in KEYACTION.keys():
         keys.add(key)
     for key in keys.sorted(system.cmp[KEYS]):
-        result &= "\n  " & ($key).replace("_", "-") & " = " & ($(KEYACTION[key])).replace("_", " ")
+        result &= ($key).replace("_", "-") & " = " & ($(KEYACTION[key])).replace("_", " ") & "\n"

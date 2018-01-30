@@ -23,3 +23,4 @@ Improvements
 - Undo broken
 - Highlighting colors from table
 - Remove F5 - Run once auto-compile is stable
+- Set nim.cfg based on loaded file path

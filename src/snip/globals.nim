@@ -15,7 +15,7 @@ const D_MARGIN* = 5
 var COFFSET* = 0        # Scroll position
 var LCOFFSET* = 0       # Last scroll position
 var LASTCHAR*: char     # Last character typed
-var MARGIN* = D_MARGIN  # space for line numbers
+var MARGIN* = D_MARGIN  # Space for line numbers
 
 # Output window
 var WINDOW* = 10        # Window size
@@ -35,6 +35,7 @@ var BUFFER* = @[""]
 var LASTBUFFER* = @[""]
 var LASTOUTPUT* = ""
 var MODES* = initOrderedTable[string, Table[string, string]]()
+var FILENAME* = ""
 var FORCE_REDRAW* = true
 
 template log*(str: string) =

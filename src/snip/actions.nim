@@ -177,33 +177,52 @@ proc doRedraw*() =
 
 proc doHelp*() =
     writeHelp(getKeyHelp())
+    discard getDialogKey(nl=false)
+    doRedraw()
 
 proc doLoad*(src: string) =
+    FILENAME = ""
     if fileExists(src):
         BUFFER = src.readFile().splitLines()
+        FILENAME = src
     elif src.len() > 4 and "http" == src[0..4]:
         BUFFER = getGist(src).splitLines()
     else:
         BUFFER = src.splitLines()
     doRedraw()
 
-proc doSave*() =
+proc doLoadDialog*() =
+    dialog("Load file: ")
+    let fn = getDialogKey(WIDTH-10)
+    if not fileExists(fn):
+        dialog("File not found: " & fn)
+    else:
+        doLoad(fn)
+
+proc doSave(dst: string) =
+    let f = open(dst, fmWrite)
+    f.write(BUFFER.join("\n"))
+    f.close()
+    dialog("Saved to " & dst)
+    sleep(1500)
+
+proc doSaveDialog*() =
+    if FILENAME != "":
+        doSave(FILENAME)
+        return
+
     dialog("Save to: ")
     let fn = getDialogKey(WIDTH-10)
     var yn = "y"
 
     if fn == "":
         return
-    elif fn.fileExists():
+    elif fileExists(fn):
         dialog("Overwrite? [y/N]")
         yn = getDialogKey(nl=false).toLowerAscii()
     
     if yn == "y":
-        let f = open(fn, fmWrite)
-        f.write(BUFFER.join("\n").strip())
-        f.close()
-        dialog("Saved to " & fn)
-        sleep(1500)
+        doSave(fn)
 
 proc doClear*() =
     doLoad("")
@@ -344,14 +363,15 @@ proc loadActions*() =
     ACTIONMAP[ERASE_RIGHT_LINE] = eraseRightLine
     ACTIONMAP[NEWLINE] = addNewline
     ACTIONMAP[CLEAR_SCREEN] = doClear
+    ACTIONMAP[LOAD_FILE] = doLoadDialog
     ACTIONMAP[HELP] = doHelp
-    ACTIONMAP[PREV_MODE] = doPrevMode
     ACTIONMAP[NEXT_MODE] = doNextMode
+    ACTIONMAP[PREV_MODE] = doPrevMode
     ACTIONMAP[QUIT] = doQuit
     ACTIONMAP[REDO] = doRedo
     ACTIONMAP[REDRAW] = doRedraw
     ACTIONMAP[RUN] = doRun
-    ACTIONMAP[SAVE_FILE] = doSave
+    ACTIONMAP[SAVE_FILE] = doSaveDialog
     ACTIONMAP[TO_2_SPACES] = add2Space
     ACTIONMAP[TO_4_SPACES] = add4Space
     ACTIONMAP[TO_8_SPACES] = add8Space

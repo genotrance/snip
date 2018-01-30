@@ -205,6 +205,16 @@ proc redrawLine*() =
 
 proc writeHelp*(help: string) =
     clearScreen()
-    echo help
-    discard getch()
-    redraw()
+    var helpout = ""
+    for line in help.splitLines():
+        if line.strip() != "":
+            if helpout == "":
+                helpout = "  " & line
+                while helpout.len() < (WIDTH div 2):
+                    helpout &= " "
+            else:
+                helpout &= line
+                echo helpout
+                helpout = ""
+    if helpout != "":
+        echo helpout
