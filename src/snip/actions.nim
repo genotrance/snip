@@ -205,6 +205,7 @@ proc doLoadDialog*() =
         doLoad(fn)
 
 proc doSave(dst: string) =
+    dialog("Saving ...")
     if "gist://" == dst:
         let url = createGist()
         if url != "":
@@ -212,9 +213,6 @@ proc doSave(dst: string) =
         else:
             popupMsg("Create gist failed")
             return
-    elif isUrl(dst):
-        popupMsg("Don't know how to update gists yet")
-        return
     else:
         let f = open(dst, fmWrite)
         f.write(BUFFER.join("\n"))
@@ -222,7 +220,12 @@ proc doSave(dst: string) =
         FILENAME = dst
     popupMsg("Saved to " & FILENAME)
 
+proc doSaveAs*()
 proc doSaveDialog*() =
+    if isUrl(FILENAME):
+        doSaveAs()
+        return
+
     if FILENAME != "":
         doSave(FILENAME)
         return

@@ -1,5 +1,4 @@
 Features
-- Change existing gist
 - Nimsuggest integration
 - Highlight code errors
 - Command line arguments to generated executable
