@@ -71,6 +71,8 @@ proc lineno(): string {.inline.} =
     result = $(LINE+COFFSET+1) & " "
     while result.len() < MARGIN:
         result = " " & result
+    if ERRORINFO.line == LINE+COFFSET:
+        result[0] = '>'
 
 iterator tokenizer(chunk: string): string {.inline.} =
     var tok = ""
@@ -117,7 +119,10 @@ proc writeTerm(line: string) =
     setCursorPosPortable(0, LINE)
     eraseLine()
     if MARGIN != 0:
-        setForegroundColor(fgYellow, BRIGHT)
+        if ERRORINFO.line == LINE+COFFSET:
+            setForegroundColor(fgRed, BRIGHT)
+        else:
+            setForegroundColor(fgYellow, BRIGHT)
         stdout.write(lineno())
         setForegroundColor(fgWhite)
     var comment = false
@@ -162,6 +167,21 @@ proc clearOutput() {.inline.} =
         terminal.cursorDown(1)
     setCursorPosPortable(0, HEIGHT-WINDOW+1)
 
+proc writeOutputLines(output: seq[string], err = -1) =
+    var i = 0
+    for line in output:
+        if err == i:
+            setForegroundColor(fgRed)
+        else:
+            setForegroundColor(fgWhite)
+        echo line
+        i += 1
+
+proc redrawLine*() =
+    hideCursor()
+    writeTerm(BUFFER[LINE+COFFSET].substr(0, WIDTH-MARGIN-1))
+    lcol()
+
 proc writeOutput*() {.inline.} =
     if getOutput() or LWOFFSET != WOFFSET:
         let ln = LINE
@@ -169,8 +189,7 @@ proc writeOutput*() {.inline.} =
         hideCursor()
         clearOutput()
 
-        let o = LASTOUTPUT.splitLines()
-        OUTLINES = o.len()
+        OUTLINES = WOUTPUT.len()
         if OUTLINES > WINDOW-2:
             var st = OUTLINES-WINDOW+2
             if WOFFSET > st:
@@ -181,10 +200,27 @@ proc writeOutput*() {.inline.} =
             var ed = st+WINDOW-4
             if ed > OUTLINES-1:
                 ed = OUTLINES-1
-            
-            echo o[st..ed].join("\n")
+
+            var err = ERRORINFO.outline
+            if err != -1:
+                if err < st or err > ed:
+                    err = -1
+                else:
+                    err = err - st
+
+            writeOutputLines(WOUTPUT[st..ed], err)
         else:
-            echo o.join("\n")
+            writeOutputLines(WOUTPUT, ERRORINFO.outline)
+
+        if ERRORINFO.line != -1:
+            LASTERRORLINE = ERRORINFO.line
+            writeCode()
+        elif LASTERRORLINE >= COFFSET and 
+            LASTERRORLINE < HEIGHT+COFFSET-1 and
+            LASTERRORLINE < BUFFER.len()-1:
+            LINE = LASTERRORLINE
+            LASTERRORLINE = -1
+            redrawLine()
 
         LINE = ln
         setCursorPosPortable(COL+MARGIN, LINE)
@@ -202,11 +238,6 @@ proc redraw*() =
     lcol()
 
     FORCE_REDRAW = false
-
-proc redrawLine*() =
-    hideCursor()
-    writeTerm(BUFFER[LINE+COFFSET].substr(0, WIDTH-MARGIN-1))
-    lcol()
 
 proc writeHelp*(help: string) =
     clearScreen()

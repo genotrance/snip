@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "genotrance"
-description   = "Quick Nim"
+description   = "Text editor to speed up testing code snippets"
 license       = "MIT"
 
 bin = @["snip"]
@@ -26,4 +26,4 @@ task buildmap, "Build buildmap":
     exec "nim c -o:buildmap src/snip/buildmap.nim"
 
 task test, "Test snip":
-    exec "nim c -r tests/sniptest.nim"
+    exec "nim c tests/sniptest.nim"

@@ -59,7 +59,7 @@ proc parseCli() =
         elif param.replace("--", "") in toSeq(MODES.keys):
             MODE = param.replace("--", "")
         else:
-            doLoad(param)
+            doLoad(param, build=false)
 
 proc init() =
     clearScreen()
@@ -68,6 +68,7 @@ proc init() =
     parseCli()
     setupCompiler()
     setupKey()
+    compile()
     redraw()
 
 init()

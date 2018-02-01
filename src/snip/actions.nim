@@ -12,26 +12,28 @@ import ./keymap
 import ./ui
 import ./undo
 
+template BUFLINE: string = BUFFER[LINE+COFFSET]
+
 # CTRL-combo
 
 proc ctrlfuncLeft(kfunc: proc(redraw: bool), rfunc: proc()) =
-    if COL > 0 and BUFFER[LINE+COFFSET][COL-1] == ' ':
-        while COL > 0 and BUFFER[LINE+COFFSET][COL-1] == ' ':
+    if COL > 0 and BUFLINE[COL-1] == ' ':
+        while COL > 0 and BUFLINE[COL-1] == ' ':
             kfunc(redraw=false)
-    if COL > 0 and BUFFER[LINE+COFFSET][COL-1] != ' ':
-        while COL > 0 and BUFFER[LINE+COFFSET][COL-1] != ' ':
+    if COL > 0 and BUFLINE[COL-1] != ' ':
+        while COL > 0 and BUFLINE[COL-1] != ' ':
             kfunc(redraw=false)
     else:
         kfunc(redraw=false)
     rfunc()
 
 proc ctrlfuncRight(kfunc: proc(redraw: bool), rfunc: proc()) =
-    if COL < BUFFER[LINE+COFFSET].len()-1 and BUFFER[LINE+COFFSET][COL+1] == ' ':
-        while COL < BUFFER[LINE+COFFSET].len()-1 and BUFFER[LINE+COFFSET][COL+1] == ' ':
+    if COL < BUFLINE.len()-1 and BUFLINE[COL+1] == ' ':
+        while COL < BUFLINE.len()-1 and BUFLINE[COL+1] == ' ':
             kfunc(redraw=false)
         kfunc(redraw=false)
-    if COL < BUFFER[LINE+COFFSET].len()-1 and BUFFER[LINE+COFFSET][COL+1] != ' ':
-        while COL < BUFFER[LINE+COFFSET].len()-1 and BUFFER[LINE+COFFSET][COL+1] != ' ':
+    if COL < BUFLINE.len()-1 and BUFLINE[COL+1] != ' ':
+        while COL < BUFLINE.len()-1 and BUFLINE[COL+1] != ' ':
             kfunc(redraw=false)
         kfunc(redraw=false)
     else:
@@ -47,12 +49,12 @@ proc cursorLeftHelper(redraw=true) =
     else:
         if LINE > 0:
             LINE -= 1
-            COL = min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len())
+            COL = min(WIDTH-MARGIN-1, BUFLINE.len())
             if redraw: lcol()
         else:
             if COFFSET > 0:
                 COFFSET -= 1
-                COL = min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len())
+                COL = min(WIDTH-MARGIN-1, BUFLINE.len())
                 if redraw: redraw()
 
 proc cursorLeft*() =
@@ -65,8 +67,8 @@ proc cursorDownHelper(redraw=true) =
     if LINE+COFFSET < BUFFER.len()-1:
         if LINE < HEIGHT-WINDOW-1:
             LINE += 1
-            if COL > BUFFER[LINE+COFFSET].len():
-                COL = BUFFER[LINE+COFFSET].len()
+            if COL > BUFLINE.len():
+                COL = BUFLINE.len()
             if redraw: lcol()
         else:
             COFFSET += 1
@@ -76,7 +78,7 @@ proc cursorDown*() =
     cursorDownHelper()
 
 proc cursorRightHelper(redraw=true) =
-    if COL < min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len()):
+    if COL < min(WIDTH-MARGIN-1, BUFLINE.len()):
         COL += 1
         if redraw: lcol()
     else:
@@ -99,8 +101,8 @@ proc cursorRightWord*() =
 proc cursorUpHelper(redraw=true) =
     if LINE > 0:
         LINE -= 1
-        if COL > BUFFER[LINE+COFFSET].len():
-            COL = BUFFER[LINE+COFFSET].len()
+        if COL > BUFLINE.len():
+            COL = BUFLINE.len()
         if redraw: lcol()
     else:
         if COFFSET > 0:
@@ -119,7 +121,7 @@ proc cursorTop*() =
 proc cursorBottom*() =
     if BUFFER.len()-1 < HEIGHT-WINDOW-1:
         LINE = BUFFER.len()-1
-        COL = min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len())
+        COL = min(WIDTH-MARGIN-1, BUFLINE.len())
         lcol()
     else:
         COFFSET = BUFFER.len()-1-HEIGHT+WINDOW+1
@@ -128,7 +130,7 @@ proc cursorBottom*() =
         redraw()
 
 proc cursorEnd*() =
-    COL = min(WIDTH-MARGIN-1, BUFFER[LINE+COFFSET].len())
+    COL = min(WIDTH-MARGIN-1, BUFLINE.len())
     lcol()
 
 proc cursorStart*() =
@@ -180,7 +182,7 @@ proc doHelp*() =
     discard getDialogKey(nl=false)
     doRedraw()
 
-proc doLoad*(src: string) =
+proc doLoad*(src: string, build=true) =
     FILENAME = ""
     if fileExists(src):
         BUFFER = src.readFile().splitLines()
@@ -194,15 +196,17 @@ proc doLoad*(src: string) =
             popupMsg("URL failed to load: " & src)
     else:
         BUFFER = src.splitLines()
+    if build: compile()
     doRedraw()
 
 proc doLoadDialog*() =
     dialog("Load file: ")
     let fn = getDialogKey(WIDTH-10)
-    if (not isUrl(fn)) and (not fileExists(fn)):
-        popupMsg("File not found: " & fn)
-    else:
-        doLoad(fn)
+    if fn != "":
+        if (not isUrl(fn)) and (not fileExists(fn)):
+            popupMsg("File not found: " & fn)
+        else:
+            doLoad(fn)
 
 proc doSave(dst: string) =
     dialog("Saving ...")
@@ -276,18 +280,18 @@ proc doToggleLineNo*() =
 # Removing chars
 
 proc eraseLeftHelper(redraw=true) =
-    let ln = BUFFER[LINE+COFFSET].len()
+    let ln = BUFLINE.len()
     if COL != 0:
         if COL == ln:
-            BUFFER[LINE+COFFSET] = BUFFER[LINE+COFFSET].substr(0, ln-2)
+            BUFLINE = BUFLINE.substr(0, ln-2)
         else:
-            BUFFER[LINE+COFFSET] = BUFFER[LINE+COFFSET].substr(0, COL-2) & BUFFER[LINE+COFFSET].substr(COL)
+            BUFLINE = BUFLINE.substr(0, COL-2) & BUFLINE.substr(COL)
         COL -= 1
         if redraw: redrawLine()
     else:
         if LINE > 0 or COFFSET > 0:
             COL = BUFFER[LINE+COFFSET-1].len()
-            BUFFER[LINE+COFFSET-1] = BUFFER[LINE+COFFSET-1] & BUFFER[LINE+COFFSET]
+            BUFFER[LINE+COFFSET-1] = BUFFER[LINE+COFFSET-1] & BUFLINE
             BUFFER.delete(LINE+COFFSET)
             if COFFSET > 0:
                 COFFSET -= 1
@@ -310,13 +314,15 @@ proc eraseLeftLine*() =
     redrawLine()
 
 proc eraseRightHelper(redraw=true) =
-    if COL < BUFFER[LINE+COFFSET].len():
-        BUFFER[LINE+COFFSET].delete(COL, COL)
+    if COL < BUFLINE.len():
+        BUFLINE.delete(COL, COL)
         if redraw: redrawLine()
     else:
-        if LINE < BUFFER.len()-1:
-            BUFFER[LINE+COFFSET] = BUFFER[LINE+COFFSET] & BUFFER[LINE+COFFSET+1]
+        if LINE+COFFSET < BUFFER.len()-1:
+            BUFLINE = BUFLINE & BUFFER[LINE+COFFSET+1]
             BUFFER.delete(LINE+COFFSET+1)
+            if COFFSET > 0:
+                COFFSET -= 1
             if redraw: redraw()
 
 proc eraseRight*() =
@@ -326,17 +332,17 @@ proc eraseRightWord*() =
     ctrlfuncRight(eraseRightHelper, redraw)
 
 proc eraseRightLine*() =
-    for i in COL .. BUFFER[LINE+COFFSET].len()-1:
+    for i in COL .. BUFLINE.len()-1:
         eraseRightHelper(false)
     redrawLine()
 
 # Adding chars
 
 proc addNewline*() =
-    if COL <= BUFFER[LINE+COFFSET].len():
-        let br = BUFFER[LINE+COFFSET].substr(COL)
-        BUFFER[LINE+COFFSET] = BUFFER[LINE+COFFSET].substr(0, COL-1)
-        if COL == BUFFER[LINE+COFFSET].len()-1:
+    if COL <= BUFLINE.len():
+        let br = BUFLINE.substr(COL)
+        BUFLINE = BUFLINE.substr(0, COL-1)
+        if COL == BUFLINE.len()-1:
             BUFFER.insert("", LINE+COFFSET+1)
         else:
             BUFFER.insert(br, LINE+COFFSET+1)
@@ -348,11 +354,11 @@ proc addNewline*() =
         redraw()
 
 proc addChar*() =
-    if COL == BUFFER[LINE+COFFSET].len():
-        BUFFER[LINE+COFFSET] &= LASTCHAR
-    elif COL < BUFFER[LINE+COFFSET].len():
-        let br = BUFFER[LINE+COFFSET].substr(COL)
-        BUFFER[LINE+COFFSET] = BUFFER[LINE+COFFSET].substr(0, COL-1) & LASTCHAR & br
+    if COL == BUFLINE.len():
+        BUFLINE &= LASTCHAR
+    elif COL < BUFLINE.len():
+        let br = BUFLINE.substr(COL)
+        BUFLINE = BUFLINE.substr(0, COL-1) & LASTCHAR & br
     COL += 1
     if COL > WIDTH-MARGIN-1:
         COL = WIDTH-MARGIN-1

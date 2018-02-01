@@ -1,6 +1,5 @@
 Features
 - Nimsuggest integration
-- Highlight code errors
 - Command line arguments to generated executable
 - Command line arguments to compiler
 - Nim flags from CLI into nim.cfg
@@ -22,3 +21,6 @@ Improvements
 - Highlighting colors from table
 - Remove F5 - Run once auto-compile is stable
 - Set nim.cfg based on loaded file path
+- Add error detection strings for js
+- Replace tables with sharedtables where appropriate
+- Compile file if specified instead of in temp

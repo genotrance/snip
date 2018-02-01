@@ -2,11 +2,13 @@ import algorithm
 import os
 import ospaths
 import osproc
+import pegs
 import strutils
 import tables
 import threadpool
 import times
 
+import ./gist
 import ./globals
 
 # Channels for compiler
@@ -19,6 +21,7 @@ var TEMPDIR = ""
 
 var KEYWORDS = initTable[string, seq[string]]()
 var COMMENTS = initTable[string, seq[string]]()
+var ERRORS = initTable[string, string]()
 
 MODES["nc"] = {
     "name": "Nim C",
@@ -206,6 +209,11 @@ COMMENTS["js"] = @["//"]
 COMMENTS["c"] = @["//"]
 COMMENTS["cpp"] = @["//"]
 
+ERRORS["nim"] = """[$#]+\({\d+}[\,][ ]\d+\)[ .]+"""
+ERRORS["python"] = """[File ]+["][$#]+["][\, line]+{\d+}"""
+ERRORS["c"] = """[$#]+[:]{\d+}[:]{\d+}[:][ error]"""
+ERRORS["cpp"] = """[$#]+[:]{\d+}[:]{\d+}[:][ error]"""
+
 template withDir*(dir: string; body: untyped): untyped =
     var curDir = getCurrentDir()
     try:
@@ -231,6 +239,7 @@ proc setDir() =
             f.close()
 
 proc run(buffer, tempdir: string, modeinfo: Table[string, string]): string =
+    result = ""
     var 
         codefile = ""
         compile = ""
@@ -258,15 +267,21 @@ proc run(buffer, tempdir: string, modeinfo: Table[string, string]): string =
         f.write(buffer)
         f.close()
 
-        (result, error) = execCmdEx(compile & " " & codefile)
-        if error == 0 and execute != "":
-            (result, error) = execCmdEx(execute)
+        try:
+            (result, error) = execCmdEx(compile & " " & codefile)
+            if error == 0 and execute != "":
+                try:
+                    (result, error) = execCmdEx(execute)
+                except OSError:
+                    result = "Failed to execute"
+        except OSError:
+            result = "Failed to compile"
 
 proc compile*() =
     if BUFFER != LASTBUFFER:
-        LASTOUTPUT = ""
+        WOUTPUT = @[""]
         WOFFSET = 0
-        if not CCODE.trySend((mode: MODE, buffer: BUFFER.join("\n").strip())):
+        if not CCODE.trySend((mode: MODE, buffer: BUFFER.join("\n"))):
             echo "Failed to send code for compilation"
 
 proc startCompiler(tempdir: string, modes: OrderedTable[string, Table[string, string]]) {.thread.} =
@@ -297,6 +312,19 @@ proc setupCompiler*() =
 
     spawn startCompiler(TEMPDIR, MODES)
 
+proc getErrorInfo() =
+    ERRORINFO = (-1, -1)
+    if ERRORS.hasKey(MODES[MODE]["language"]) and WOUTPUT.len() != 0:
+        var i = 0
+        var fn = FILENAME.extractFilename()
+        if fn == "" or isUrl(fn):
+            fn = MODES[MODE]["codefile"]
+        for line in WOUTPUT:
+            if line =~ peg(ERRORS[MODES[MODE]["language"]] % fn):
+                ERRORINFO = (matches[0].parseInt()-1, i)
+                break
+            i += 1
+
 proc getOutput*(): bool =
     result = false
     var ready: bool
@@ -305,10 +333,12 @@ proc getOutput*(): bool =
         # Get last output
         (ready, buffer) = COUT.tryRecv()
         if ready:
-            LASTOUTPUT = buffer
+            WOUTPUT = buffer.splitLines()
             result = true
         else:
             break
+    if result:        
+        getErrorInfo()
 
 proc cleanup*() =
     if TEMPDIR != "":

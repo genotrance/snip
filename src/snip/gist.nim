@@ -74,7 +74,7 @@ proc createGist*(): string =
             "public": true,
             "files": {
                 MODES[MODE]["codefile"]: {
-                    "content": BUFFER.join("\n").strip()
+                    "content": BUFFER.join("\n")
                 }
             }
         }

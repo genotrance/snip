@@ -73,7 +73,16 @@ for i in 0 .. 30:
     typeStr("# Adding another comment")
     loop(addNewline, HEIGHT-WINDOW-4)
     typeStr("# Finally ending")
+
+    # Left key scrolls up
+    while COFFSET != 4:
+        cursorUp()
+    loop(cursorLeft, 30)
     cursorTop()
+
+    # Right key scrolls down
+    loop(cursorDown, HEIGHT-WINDOW)
+    loop(cursorRight, 30)
     sleep(750)
 
     # Scroll output window
@@ -89,6 +98,7 @@ for i in 0 .. 30:
         sleep(75)
 
     # Erase chars ahead/back
+    cursorTop()
     loop(eraseRight, 20)
     cursorBottom()
     loop(eraseLeft, 30)
