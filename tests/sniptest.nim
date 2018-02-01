@@ -20,6 +20,13 @@ template typeStr(str: string) =
         LASTCHAR = i
         addChar()
 
+template waitOutput() =
+    while WOUTPUT[0] == "":
+        sleep(100)
+        writeOutput()
+    sleep(2000)
+    WOUTPUT = @[""]
+
 proc test1() =
     writeHelp(getKeyHelp())
     sleep(750)
@@ -59,7 +66,6 @@ for i in 0 .. 30:
 # Display and scroll output window
 # Delete and backspace test
     """)
-    doRun()
     sleep(750)
 
     # Line numbers
@@ -89,10 +95,12 @@ for i in 0 .. 30:
     writeOutput()
     sleep(75)
     for i in 0 .. 5:
+        LWOFFSET = WOFFSET
         scrollWindowUp()
         writeOutput()
         sleep(75)
     for i in 0 .. 5:
+        LWOFFSET = WOFFSET
         scrollWindowDown()
         writeOutput()
         sleep(75)
@@ -143,12 +151,68 @@ Erase full line from end""")
     cursorUp()
     eraseLeftLine()
 
+proc test4() =
+    doLoad("https://gist.github.com/9258b84dcd97e573403ce27e801d6ad5")
+    sleep(750)
+
+    doLoad("https://pastebin.com/pgiyRMPw")
+    sleep(750)
+
+    doLoad("https://gist.github.com/anonymous/9258b84dcd97e573403ce27e801d6ad5")
+    sleep(750)
+
+proc test5() =
+    doClear()
+
+    # Nim compiles
+    doLoad("""echo "Hello world" """)
+    waitOutput()
+
+    # Nim doesn't compile
+    doLoad("""echo i""")
+    waitOutput()
+
+    loop(doNextMode, 4)
+
+    # Python executes
+    doLoad("""print('Hello world')""")
+    waitOutput()
+
+    # Python fails
+    doLoad("""print A""")
+    waitOutput()
+
+    loop(doNextMode, 2)
+
+    # GCC compiles
+    doLoad("""int main() { printf("Hello world"); }""")
+    waitOutput()
+
+    # GCC doesn't compile
+    doLoad("echo")
+    waitOutput()
+
+    doNextMode()
+
+    # G++ compiles
+    doLoad("""
+#include <iostream>
+using namespace std;
+
+int main() { cout << "Hello world"; }
+""")
+    waitOutput()
+
+    # G++ doesn't compile
+    doLoad("echo")
+    waitOutput()
+
 # Run compiler thread
 setupCompiler()
 
 var starttest = 1
-var endtest = 3
-var tests = @[test1, test2, test3]
+var tests = @[test1, test2, test3, test4, test5]
+var endtest = tests.len()
 if commandLineParams().len() > 0:
     starttest = parseInt(commandLineParams()[0])
 if commandLineParams().len() > 1:
