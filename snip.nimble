@@ -14,7 +14,7 @@ skipExt = @["nim"]
 requires "nim >= 0.16.0"
 
 task release, "Build release binary":
-    exec "nim c -d:release -d:VERSION=v" & version & " --opt:size src/snip.nim"
+    exec "nim c -d:release -o:snip -d:VERSION=v" & version & " --opt:size src/snip.nim"
     exec "sleep 1"
     exec "strip -s snip.exe"
     exec "upx --best snip.exe"

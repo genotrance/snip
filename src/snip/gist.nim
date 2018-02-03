@@ -60,9 +60,12 @@ proc getGist*(url: string): string =
     result = ""
     var client = newHttpClient(proxy = getProxy())
 
-    let r = client.get(adjustUrl(url))
-    if r.code().is2xx():
-        result = r.body
+    try:
+        let r = client.get(adjustUrl(url))
+        if r.code().is2xx():
+            result = r.body
+    except OSError:
+        discard
 
 proc createGist*(): string =
     result = ""
@@ -79,9 +82,12 @@ proc createGist*(): string =
             }
         }
 
-    let r = client.post(url, $jsondata)
-    if r.code() == Http201:
-        result = "https://gist.github.com/anonymous/" & r.body.parseJson()["id"].getStr()
-        log("Created gist: " & result)
-    else:
-        log("Create gist failed: " & r.status & "\n" & r.body)
+    try:
+        let r = client.post(url, $jsondata)
+        if r.code() == Http201:
+            result = "https://gist.github.com/anonymous/" & r.body.parseJson()["id"].getStr()
+            log("Created gist: " & result)
+        else:
+            log("Create gist failed: " & r.status & "\n" & r.body)
+    except OSError:
+        discard
