@@ -23,6 +23,7 @@ URLs:
     https://play.nim-lang.org/?gist=hash
 
 Flags:
+    --mon               Monitor file and load changes
     --map               Show keymap
     --act               List all editor actions
     --key               List all key definitions
@@ -58,6 +59,8 @@ proc parseCli() =
             quit()
         elif param.replace("--", "") in toSeq(MODES.keys):
             MODE = param.replace("--", "")
+        elif param == "--mon":
+            MONITOR = true
         else:
             doLoad(param, build=false)
 
@@ -75,6 +78,7 @@ init()
 while true:
     backup()
     handleKey()
+    doReload()
     compile()
     sleep(10)
     writeOutput()

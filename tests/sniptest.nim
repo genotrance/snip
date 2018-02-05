@@ -24,7 +24,7 @@ template waitOutput() =
     while WOUTPUT[0] == "":
         sleep(100)
         writeOutput()
-    sleep(2000)
+    sleep(3000)
     WOUTPUT = @[""]
 
 proc test1() =

@@ -64,7 +64,7 @@ proc getDialogKey*(max=1, nl=true): string =
                     if not nl:
                         break
 
-proc handleKey*() =
+proc handleKey*() {.inline.} =
     var (ready, code) = KCH.tryRecv()
     
     if ready:

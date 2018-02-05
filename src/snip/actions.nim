@@ -3,6 +3,7 @@ import posix
 import strutils
 import tables
 import terminal
+import times
 
 import ./compile
 import ./gist
@@ -184,9 +185,10 @@ proc doHelp*() =
 
 proc doLoad*(src: string, build=true) =
     FILENAME = ""
+    ERRORINFO = (-1, -1)
     if fileExists(src):
-        BUFFER = src.readFile().splitLines()
-        FILENAME = src
+        FILENAME = src.expandFilename()
+        BUFFER = FILENAME.readFile().splitLines()
     elif isUrl(src):
         let body = getGist(src)
         if body != "":
@@ -196,6 +198,7 @@ proc doLoad*(src: string, build=true) =
             popupMsg("URL failed to load: " & src)
     else:
         BUFFER = src.splitLines()
+    LOADTIME = getTime()
     if build: compile()
     doRedraw()
 
@@ -207,6 +210,10 @@ proc doLoadDialog*() =
             popupMsg("File not found: " & fn)
         else:
             doLoad(fn)
+
+proc doReload*() {.inline.} =
+    if MONITOR and fileExists(FILENAME) and getLastModificationTime(FILENAME) > LOADTIME:
+        doLoad(FILENAME)
 
 proc doSave(dst: string) =
     dialog("Saving ...")

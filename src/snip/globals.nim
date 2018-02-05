@@ -1,4 +1,5 @@
 import tables
+import times
 
 const VERSION* {.strdefine.} = ""
 
@@ -39,6 +40,8 @@ var LASTERRORLINE* = -1
 var MODES* = initOrderedTable[string, Table[string, string]]()
 var FILENAME* = ""
 var FORCE_REDRAW* = true
+var LOADTIME*: Time
+var MONITOR* = false
 
 template log*(str: string) =
     let f = open("snip.log", fmAppend)

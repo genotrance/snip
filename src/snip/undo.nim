@@ -7,7 +7,7 @@ var REDO: seq[seq[string]] = @[]
 var CREDO: seq[seq[int]] = @[]
 var LASTCURSOR: seq[int] = @[0, 0]
 
-proc backup*() =
+proc backup*() {.inline.} =
     if LASTBUFFER != BUFFER:
         HISTORY.add(LASTBUFFER)
         CHISTORY.add(LASTCURSOR)
