@@ -23,6 +23,7 @@ __Features__
 * Basic syntax highlighting
 * Output window showing results of compile / execution
 * Load gist/snippet, create new gist
+* Monitor file for changes and reload/recompile
 * Custom key maps if desired
 
 There is a long [TODO](TODO.txt) list since ```snip``` is still under heavy development.
@@ -38,6 +39,7 @@ URLs:
     https://play.nim-lang.org/?gist=hash
 
 Flags:
+    --mon               Monitor file and load changes
     --map               Show keymap
     --act               List all editor actions
     --key               List all key definitions

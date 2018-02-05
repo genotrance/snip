@@ -24,3 +24,4 @@ Improvements
 - Add error detection strings for js
 - Replace tables with sharedtables where appropriate
 - Compile file if specified instead of in temp
+- Truncate filename if it doesn't fit in lcol()
