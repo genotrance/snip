@@ -31,6 +31,13 @@ MODES["nc"] = {
     "language": "nim"
 }.toTable()
 
+MODES["ns"] = {
+    "name": "Nim Script",
+    "codefile": "nimstest.nims",
+    "execute": "nim e",
+    "language": "nim"
+}.toTable()
+
 MODES["ncp"] = {
     "name": "Nim CPP",
     "codefile": "cpptest.nim",
@@ -109,98 +116,98 @@ KEYWORDS["nim"] = @[
     "yield"
 ]
 KEYWORDS["python"] = @[
-    "False", "None", "True", 
-    "and", "as", "assert", 
-    "break", 
-    "class", "continue", 
-    "def", "del", 
-    "elif", "else", "except", 
-    "finally", "for", "from", 
-    "global", 
-    "if", "import", "in", "is", 
-    "lambda", 
-    "nonlocal", "not", 
-    "or", 
-    "pass", 
-    "raise", "return", 
-    "try", 
-    "while", "with", 
+    "False", "None", "True",
+    "and", "as", "assert",
+    "break",
+    "class", "continue",
+    "def", "del",
+    "elif", "else", "except",
+    "finally", "for", "from",
+    "global",
+    "if", "import", "in", "is",
+    "lambda",
+    "nonlocal", "not",
+    "or",
+    "pass",
+    "raise", "return",
+    "try",
+    "while", "with",
     "yield"
 ]
 KEYWORDS["javascript"] = @[
     "abstract", "arguments", "await",
-    "boolean", "break", "byte", 
+    "boolean", "break", "byte",
     "case", "catch", "char", "class", "const", "continue",
-    "debugger", "default", "delete", "do", "double", 
-    "else", "enum", "eval", "export", "extends", 
+    "debugger", "default", "delete", "do", "double",
+    "else", "enum", "eval", "export", "extends",
     "false", "final", "finally", "float", "for", "function",
-    "goto", 
+    "goto",
     "if", "implements", "import", "in", "instanceof", "int", "interface",
-    "let", "long", 
-    "native", "new", "null", 
-    "package", "private", "protected", "public", 
-    "return", 
-    "short", "static", "super", "switch", "synchronized", 
-    "this", "throw", "throws", "transient", "true", "try", "typeof", 
-    "var", "void", "volatile", 
-    "while", "with", 
+    "let", "long",
+    "native", "new", "null",
+    "package", "private", "protected", "public",
+    "return",
+    "short", "static", "super", "switch", "synchronized",
+    "this", "throw", "throws", "transient", "true", "try", "typeof",
+    "var", "void", "volatile",
+    "while", "with",
     "yield"
 ]
 KEYWORDS["c"] = @[
-    "auto", 
-    "break", 
-    "case", "char", "const", "continue", 
-    "default", "do", "double", 
-    "else", "enum", "extern", 
-    "float", "for", 
-    "goto", 
-    "if", "inline", "int", 
-    "long", 
-    "register", "restrict", "return", 
-    "short", "signed", "sizeof", "static", "struct", "switch", 
-    "typedef", 
-    "union", "unsigned", 
-    "void", "volatile", 
+    "auto",
+    "break",
+    "case", "char", "const", "continue",
+    "default", "do", "double",
+    "else", "enum", "extern",
+    "float", "for",
+    "goto",
+    "if", "inline", "int",
+    "long",
+    "register", "restrict", "return",
+    "short", "signed", "sizeof", "static", "struct", "switch",
+    "typedef",
+    "union", "unsigned",
+    "void", "volatile",
     "while",
 
-    "define", "defined", 
-    "elif", "else", "endif", "error", 
-    "if", "ifdef", "ifndef", "include", 
-    "line", 
-    "pragma", 
-    "undef" 
+    "define", "defined",
+    "elif", "else", "endif", "error",
+    "if", "ifdef", "ifndef", "include",
+    "line",
+    "pragma",
+    "undef"
 ]
 KEYWORDS["cpp"] = @[
-    "alignas", "alignof", "and", "and_eq", "asm", "atomic_cancel", "atomic_commit", "atomic_noexcept", "auto", 
-    "bitand", "bitor", "bool", "break", 
-    "case", "catch", "char", "char16_t", "char32_t", "class", "compl", "concept", "const", "constexpr", "const_cast", 
-    "continue", "co_await", "co_return", "co_yield", 
-    "decltype", "default", "delete", "do", "double", "dynamic_cast", 
-    "else", "enum", "explicit", "export", "extern", 
-    "false", "float", "for", "friend", 
-    "goto", 
-    "if", "import", "inline", "int", 
-    "long", 
-    "module", "mutable", 
-    "namespace", "new", "noexcept", "not", "not_eq", "nullptr", 
-    "operator", "or", "or_eq", 
-    "private", "protected", "public", 
-    "register", "reinterpret_cast", "requires", "return", 
-    "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "synchronized", 
-    "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", 
-    "union", "unsigned", "using", 
-    "virtual", "void", "volatile", 
-    "wchar_t", "while", 
-    "xor", "xor_eq", 
+    "alignas", "alignof", "and", "and_eq", "asm", "atomic_cancel", "atomic_commit", "atomic_noexcept", "auto",
+    "bitand", "bitor", "bool", "break",
+    "case", "catch", "char", "char16_t", "char32_t", "class", "compl", "concept", "const", "constexpr", "const_cast",
+    "continue", "co_await", "co_return", "co_yield",
+    "decltype", "default", "delete", "do", "double", "dynamic_cast",
+    "else", "enum", "explicit", "export", "extern",
+    "false", "float", "for", "friend",
+    "goto",
+    "if", "import", "inline", "int",
+    "long",
+    "module", "mutable",
+    "namespace", "new", "noexcept", "not", "not_eq", "nullptr",
+    "operator", "or", "or_eq",
+    "private", "protected", "public",
+    "register", "reinterpret_cast", "requires", "return",
+    "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "synchronized",
+    "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename",
+    "union", "unsigned", "using",
+    "virtual", "void", "volatile",
+    "wchar_t", "while",
+    "xor", "xor_eq",
 
     "override", "final", "transaction_safe", "transaction_safe_dynamic",
 
-    "define", "defined", 
-    "elif", "else", "endif", "error", 
-    "if", "ifdef", "ifndef", "include", 
-    "line", 
-    "pragma", 
-    "undef" 
+    "define", "defined",
+    "elif", "else", "endif", "error",
+    "if", "ifdef", "ifndef", "include",
+    "line",
+    "pragma",
+    "undef"
 ]
 
 COMMENTS["nim"] = @["#"]
@@ -240,7 +247,7 @@ proc setDir() =
 
 proc run(buffer, tempdir: string, modeinfo: Table[string, string]): string =
     result = ""
-    var 
+    var
         codefile = ""
         compile = ""
         execute = ""
@@ -337,7 +344,7 @@ proc getOutput*(): bool =
             result = true
         else:
             break
-    if result:        
+    if result:
         getErrorInfo()
 
 proc cleanup*() =
@@ -357,7 +364,7 @@ proc isLanguage*(mode, token: string): bool =
         let lang = MODES[MODE]["language"]
         if table.hasKey(lang) and token in table[lang]:
             return true
-    
+
     return false
 
 proc setMode*(next=true) =
@@ -367,7 +374,7 @@ proc setMode*(next=true) =
         if key == MODE:
             i = allmodes.len()
         allmodes.add(key)
-    
+
     if next:
         i += 1
         if i == allmodes.len():

@@ -172,7 +172,7 @@ proc test5() =
     doLoad("""echo i""")
     waitOutput()
 
-    loop(doNextMode, 4)
+    loop(doNextMode, 5)
 
     # Python executes
     doLoad("""print('Hello world')""")

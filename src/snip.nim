@@ -31,7 +31,7 @@ Flags:
 
 proc help() =
     echo HELP
-    
+
     for mode in MODES.keys():
         echo "    --" & mode & "\t\t" & MODES[mode]["name"]
 
