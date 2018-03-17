@@ -10,6 +10,7 @@ Features
 - Handle horizontal scroll
 - OS specific key map due to variability in key detection/availability
 - Handle white background
+- Full screen output window with scroll
 
 Improvements
 - Fix highlighting loss if line too long

@@ -323,11 +323,11 @@ proc getErrorInfo() =
     ERRORINFO = (-1, -1)
     if ERRORS.hasKey(MODES[MODE]["language"]) and WOUTPUT.len() != 0:
         var i = 0
-        var fn = FILENAME.extractFilename()
-        if fn == "" or isUrl(fn):
-            fn = MODES[MODE]["codefile"]
+        #var fn = FILENAME.extractFilename()
+        #if fn == "" or isUrl(fn):
+        #    fn = MODES[MODE]["codefile"]
         for line in WOUTPUT:
-            if line =~ peg(ERRORS[MODES[MODE]["language"]] % fn):
+            if line =~ peg(ERRORS[MODES[MODE]["language"]] % MODES[MODE]["codefile"]):
                 ERRORINFO = (matches[0].parseInt()-1, i)
                 break
             i += 1

@@ -190,6 +190,10 @@ proc writeOutput*() {.inline.} =
         clearOutput()
 
         OUTLINES = WOUTPUT.len()
+        if LWOFFSET == WOFFSET and ERRORINFO.outline != -1:
+            while OUTLINES >= WINDOW and ERRORINFO.outline < OUTLINES-WINDOW-WOFFSET+2:
+                WOFFSET += 1
+
         if OUTLINES > WINDOW-2:
             var st = OUTLINES-WINDOW+2
             if WOFFSET > st:
@@ -215,7 +219,7 @@ proc writeOutput*() {.inline.} =
         if ERRORINFO.line != -1:
             LASTERRORLINE = ERRORINFO.line
             writeCode()
-        elif LASTERRORLINE >= COFFSET and 
+        elif LASTERRORLINE >= COFFSET and
             LASTERRORLINE < HEIGHT+COFFSET-1 and
             LASTERRORLINE < BUFFER.len()-1:
             LINE = LASTERRORLINE
