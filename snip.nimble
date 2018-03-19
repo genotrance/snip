@@ -7,7 +7,7 @@ license       = "MIT"
 
 bin = @["snip"]
 srcDir = "src"
-skipExt = @["nim"]
+skipDirs = @["snip"]
 
 # Dependencies
 
