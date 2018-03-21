@@ -340,7 +340,7 @@ proc getOutput*(): bool =
         # Get last output
         (ready, buffer) = COUT.tryRecv()
         if ready:
-            WOUTPUT = buffer.splitLines()
+            WOUTPUT = buffer.strip().splitLines()
             result = true
         else:
             break

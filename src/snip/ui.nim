@@ -56,7 +56,8 @@ proc lcol*() =
     writeFlush("$#x$# | $# | $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)] & fn)
     setForegroundColor(fgWhite)
     setCursorPosPortable(COL+MARGIN, LINE)
-    showCursor()
+    if WINDOW != HEIGHT-1:
+        showCursor()
     stdout.flushFile()
 
 proc split() {.inline.} =
@@ -67,11 +68,11 @@ proc split() {.inline.} =
     writeFlush(s)
     setCursorPosPortable(COL, LINE)
 
-proc lineno(): string {.inline.} =
-    result = $(LINE+COFFSET+1) & " "
+proc lineno(line, errline: int): string {.inline.} =
+    result = $(line+1) & " "
     while result.len() < MARGIN:
         result = " " & result
-    if ERRORINFO.line == LINE+COFFSET:
+    if errline == line:
         result[0] = '>'
 
 iterator tokenizer(chunk: string): string {.inline.} =
@@ -123,7 +124,7 @@ proc writeTerm(line: string) =
             setForegroundColor(fgRed, BRIGHT)
         else:
             setForegroundColor(fgYellow, BRIGHT)
-        stdout.write(lineno())
+        stdout.write(lineno(LINE+COFFSET, ERRORINFO.line))
         setForegroundColor(fgWhite)
     var comment = false
     for tok in tokenizer(line):
@@ -167,14 +168,14 @@ proc clearOutput() {.inline.} =
         terminal.cursorDown(1)
     setCursorPosPortable(0, HEIGHT-WINDOW+1)
 
-proc writeOutputLines(output: seq[string], err = -1) =
+proc writeOutputLines(output: seq[string], err = -1, offset=0) =
     var i = 0
     for line in output:
         if err == i:
             setForegroundColor(fgRed)
         else:
             setForegroundColor(fgWhite)
-        echo line
+        echo lineno(offset+i, err) & line
         i += 1
 
 proc redrawLine*() =
@@ -183,7 +184,10 @@ proc redrawLine*() =
     lcol()
 
 proc writeOutput*() {.inline.} =
-    if getOutput() or LWOFFSET != WOFFSET:
+    if WINDOW == 0:
+        return
+
+    if getOutput() or LWOFFSET != WOFFSET or FORCE_REDRAW:
         let ln = LINE
 
         hideCursor()
@@ -212,7 +216,7 @@ proc writeOutput*() {.inline.} =
                 else:
                     err = err - st
 
-            writeOutputLines(WOUTPUT[st..ed], err)
+            writeOutputLines(WOUTPUT[st..ed], err, st)
         else:
             writeOutputLines(WOUTPUT, ERRORINFO.outline)
 
@@ -238,7 +242,9 @@ proc redraw*() =
     if FORCE_REDRAW: clearScreen()
 
     writeCode()
-    if FORCE_REDRAW: split()
+    if FORCE_REDRAW:
+        split()
+        writeOutput()
     lcol()
 
     FORCE_REDRAW = false

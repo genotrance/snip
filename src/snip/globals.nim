@@ -13,13 +13,15 @@ var COL* = 0
 
 # Code window
 const D_MARGIN* = 6
+const D_MINCODE* = 5
 var COFFSET* = 0        # Scroll position
 var LCOFFSET* = 0       # Last scroll position
 var LASTCHAR*: char     # Last character typed
 var MARGIN* = D_MARGIN  # Space for line numbers
 
 # Output window
-var WINDOW* = 10        # Window size
+const D_WINDOW* = 10
+var WINDOW* = D_WINDOW  # Window size
 var WOFFSET* = 0        # Scroll position
 var LWOFFSET* = 0       # Last scroll position
 var OUTLINES* = 0       # Number of lines in output

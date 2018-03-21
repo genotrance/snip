@@ -153,12 +153,12 @@ proc cursorPageUp*() =
 # Output window
 
 proc scrollWindowDown*() =
-    WOFFSET -= 1
+    WOFFSET -= (WINDOW / 3).int
     if WOFFSET < 0:
         WOFFSET = 0
 
 proc scrollWindowUp*() =
-    WOFFSET += 1
+    WOFFSET += (WINDOW / 3).int
     if WOFFSET > OUTLINES-WINDOW+2:
         WOFFSET = OUTLINES-WINDOW+2
 
@@ -178,8 +178,22 @@ proc doRedraw*() =
     FORCE_REDRAW = true
     redraw()
 
+proc doFullScreenCode*() =
+    if WINDOW == 0:
+        WINDOW = D_WINDOW
+    else:
+        WINDOW = 0
+    doRedraw()
+
+proc doFullScreenOutput*() =
+    if WINDOW == HEIGHT - D_MINCODE:
+        WINDOW = D_WINDOW
+    else:
+        WINDOW = HEIGHT - D_MINCODE 
+    doRedraw()
+
 proc doHelp*() =
-    writeHelp(getKeyHelp())
+    writeHelp(getActionHelp())
     discard getDialogKey(nl=false)
     doRedraw()
 
@@ -250,7 +264,7 @@ proc doSaveDialog*() =
     elif fileExists(fn):
         dialog("Overwrite [y/N]: ")
         yn = getDialogKey(nl=false).toLowerAscii()
-    
+
     if yn == "y":
         doSave(fn)
 
@@ -383,7 +397,7 @@ proc add4Space() =
 
 proc add8Space() =
     for i in 0 .. 7: addSpace()
-            
+
 proc loadActions*() =
     ACTIONMAP[CURSOR_UP] = cursorUp
     ACTIONMAP[CURSOR_DOWN] = cursorDown
@@ -408,8 +422,10 @@ proc loadActions*() =
     ACTIONMAP[NEWLINE] = addNewline
     ACTIONMAP[CLEAR_SCREEN] = doClear
     ACTIONMAP[CREATE_GIST] = doCreateGist
-    ACTIONMAP[LOAD_FILE] = doLoadDialog
+    ACTIONMAP[FULL_SCREEN_CODE] = doFullScreenCode
+    ACTIONMAP[FULL_SCREEN_OUTPUT] = doFullScreenOutput
     ACTIONMAP[HELP] = doHelp
+    ACTIONMAP[LOAD_FILE] = doLoadDialog
     ACTIONMAP[NEXT_MODE] = doNextMode
     ACTIONMAP[PREV_MODE] = doPrevMode
     ACTIONMAP[QUIT] = doQuit
@@ -429,9 +445,9 @@ proc loadActions*() =
         if KEYACTION.hasKey(CTRL_C) and ACTIONMAP.hasKey(KEYACTION[CTRL_C]):
             onSignal(SIGINT):
                 ACTIONMAP[KEYACTION[CTRL_C]]()
-        
+
         if KEYACTION.hasKey(CTRL_Z) and ACTIONMAP.hasKey(KEYACTION[CTRL_Z]):
             onSignal(SIGTSTP):
                 ACTIONMAP[KEYACTION[CTRL_Z]]()
                 redraw()
-        
+

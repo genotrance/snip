@@ -1,6 +1,6 @@
 import algorithm
 import os
-import ospaths    
+import ospaths
 import strutils
 import tables
 
@@ -8,8 +8,8 @@ import ./globals
 
 type
     KEYS* = enum
-        ESC, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, 
-        BACKSPACE, INSERT, HOME, PAGEUP, 
+        ESC, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+        BACKSPACE, INSERT, HOME, PAGEUP,
         TAB, ENTER, DELETE, END, PAGEDOWN,
         UP, LEFT, DOWN, RIGHT,
 
@@ -36,9 +36,9 @@ type
 
 type
     ACTIONS* = enum
-        CURSOR_UP, CURSOR_DOWN, CURSOR_LEFT, CURSOR_RIGHT, 
-        CURSOR_LEFT_WORD, CURSOR_RIGHT_WORD,        
-        CURSOR_PAGEUP, CURSOR_PAGEDOWN, 
+        CURSOR_UP, CURSOR_DOWN, CURSOR_LEFT, CURSOR_RIGHT,
+        CURSOR_LEFT_WORD, CURSOR_RIGHT_WORD,
+        CURSOR_PAGEUP, CURSOR_PAGEDOWN,
         CURSOR_START, CURSOR_END, CURSOR_TOP, CURSOR_BOTTOM,
 
         WINDOW_DOWN, WINDOW_UP,
@@ -47,10 +47,10 @@ type
         ERASE_LEFT_LINE, ERASE_RIGHT_LINE,
 
         NEWLINE,
-        
-        CLEAR_SCREEN, CREATE_GIST, HELP, LOAD_FILE, NEXT_MODE, PREV_MODE, QUIT, 
-        REDO, REDRAW, RUN, SAVE_FILE, SAVE_AS, TO_2_SPACES, 
-        TO_4_SPACES, TO_8_SPACES, TOGGLE_LINES, UNDO, 
+
+        CLEAR_SCREEN, CREATE_GIST, FULL_SCREEN_CODE, FULL_SCREEN_OUTPUT, HELP,
+        LOAD_FILE, NEXT_MODE, PREV_MODE, QUIT, REDO, REDRAW, RUN, SAVE_FILE,
+        SAVE_AS, TO_2_SPACES, TO_4_SPACES, TO_8_SPACES, TOGGLE_LINES, UNDO,
 
         DEFAULT
 
@@ -78,6 +78,8 @@ var KEYACTIONSTRING = """
     F7 = TOGGLE_LINES
     F8 = CREATE_GIST
     F10 = HELP
+    F11 = FULL_SCREEN_CODE
+    F12 = FULL_SCREEN_OUTPUT
 
     CTRL_C = QUIT
     CTRL_R = REDRAW
@@ -187,3 +189,11 @@ proc getKeyHelp*(): string =
         keys.add(key)
     for key in keys.sorted(system.cmp[KEYS]):
         result &= ($key).replace("_", "-") & " = " & ($(KEYACTION[key])).replace("_", " ") & "\n"
+
+proc getActionHelp*(): string =
+    result = ""
+    var keyacts = newSeq[string]()
+    for key in KEYACTION.keys():
+        keyacts.add(($(KEYACTION[key])).replace("_", " ") & " = " & ($key).replace("_", "-"))
+    for keyact in keyacts.sorted(system.cmp[string]):
+        result &= keyact & "\n"

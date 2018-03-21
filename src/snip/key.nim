@@ -27,7 +27,7 @@ proc getKey*(): string {.inline.} =
     result = ""
     when not defined(windows):
         enable_raw_mode()
-    
+
     LASTCHAR = getch()
     result = $LASTCHAR.int
     while kbhit() != 0:
@@ -43,7 +43,7 @@ proc getDialogKey*(max=1, nl=true): string =
     var code: string
     while true:
         (ready, code) = KCH.tryRecv()
-        
+
         if ready:
             if KEYMAP.hasKey(code):
                 let key = KEYMAP[code]
@@ -66,7 +66,7 @@ proc getDialogKey*(max=1, nl=true): string =
 
 proc handleKey*() {.inline.} =
     var (ready, code) = KCH.tryRecv()
-    
+
     if ready:
         if KEYMAP.hasKey(code):
             let key = KEYMAP[code]
