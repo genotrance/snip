@@ -19,7 +19,7 @@ proc getProxy*(): Proxy =
         url = getEnv("https_proxy")
     except ValueError:
         return nil
-  
+
     if url.len > 0:
       var parsed = parseUri(url)
       if parsed.scheme.len == 0 or parsed.hostname.len == 0:
@@ -43,13 +43,16 @@ proc adjustUrl(url: string): string =
         if parsed.path.split("/").len() == 2:
             parsed.path = "/anonymous" & parsed.path
         parsed.path &= "/raw"
-    elif parsed.hostname == "pastebin.com":
-        if not ("raw" in parsed.path):
+    elif "pastebin.com" in parsed.hostname:
+        if "raw" notin parsed.path:
             parsed.path = "/raw" & parsed.path
     elif parsed.hostname == "play.nim-lang.org":
         parsed.hostname = "gist.githubusercontent.com"
         parsed.path = "/anonymous/" & parsed.query.split("=")[1] & "/raw"
         parsed.query = ""
+    elif "dpaste.de" in parsed.hostname:
+        if "raw" notin parsed.path:
+            parsed.path &= "/raw"
 
     if parsed.hostname in @["github.com", "www.github.com"]:
         parsed.path = parsed.path.replace("/blob/", "/raw/")

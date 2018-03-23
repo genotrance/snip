@@ -159,8 +159,8 @@ proc scrollWindowDown*() =
 
 proc scrollWindowUp*() =
     WOFFSET += (WINDOW / 3).int
-    if WOFFSET > OUTLINES-WINDOW+2:
-        WOFFSET = OUTLINES-WINDOW+2
+    if WOFFSET > OUTLINES-WINDOW+3:
+        WOFFSET = OUTLINES-WINDOW+3
 
 # Actions
 
@@ -189,7 +189,7 @@ proc doFullScreenOutput*() =
     if WINDOW == HEIGHT - D_MINCODE:
         WINDOW = D_WINDOW
     else:
-        WINDOW = HEIGHT - D_MINCODE 
+        WINDOW = HEIGHT - D_MINCODE
     doRedraw()
 
 proc doHelp*() =
@@ -296,7 +296,7 @@ proc doToggleLineNo*() =
         MARGIN = 0
     else:
         MARGIN = D_MARGIN
-    redraw()
+    doRedraw()
 
 # Removing chars
 

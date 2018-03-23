@@ -171,11 +171,17 @@ proc clearOutput() {.inline.} =
 proc writeOutputLines(output: seq[string], err = -1, offset=0) =
     var i = 0
     for line in output:
+        if MARGIN != 0:
+            if err == i:
+                setForegroundColor(fgRed, BRIGHT)
+            else:
+                setForegroundColor(fgYellow, BRIGHT)
+            stdout.write(lineno(offset+i, err))
         if err == i:
             setForegroundColor(fgRed)
         else:
             setForegroundColor(fgWhite)
-        echo lineno(offset+i, err) & line
+        echo line
         i += 1
 
 proc redrawLine*() =
@@ -199,7 +205,7 @@ proc writeOutput*() {.inline.} =
                 WOFFSET += 1
 
         if OUTLINES > WINDOW-2:
-            var st = OUTLINES-WINDOW+2
+            var st = OUTLINES-WINDOW+3
             if WOFFSET > st:
                 st = 0
             else:
