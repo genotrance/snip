@@ -73,22 +73,12 @@ proc getGist*(url: string): string =
 proc createGist*(): string =
     result = ""
     var client = newHttpClient(proxy = getProxy())
-    var url = "https://api.github.com/gists"
-    var jsondata = %*
-        {
-            "description": "Snippet from snip",
-            "public": true,
-            "files": {
-                MODES[MODE]["codefile"]: {
-                    "content": BUFFER.join("\n")
-                }
-            }
-        }
-
+    var url = "http://ix.io"
+    var data = "name:1=" & MODES[MODE]["codefile"] & "&f:1=" & BUFFER.join("\n")
     try:
-        let r = client.post(url, $jsondata)
-        if r.code() == Http201:
-            result = "https://gist.github.com/anonymous/" & r.body.parseJson()["id"].getStr()
+        let r = client.post(url, data)
+        if r.code() == Http200:
+            result = r.body.strip()
             log("Created gist: " & result)
         else:
             log("Create gist failed: " & r.status & "\n" & r.body)
