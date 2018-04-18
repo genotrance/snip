@@ -50,7 +50,7 @@ proc adjustUrl(url: string): string =
         parsed.hostname = "gist.githubusercontent.com"
         parsed.path = "/anonymous/" & parsed.query.split("=")[1] & "/raw"
         parsed.query = ""
-    elif "dpaste.de" in parsed.hostname:
+    elif "dpaste.de" in parsed.hostname or "ghostbin.com" in parsed.hostname:
         if "raw" notin parsed.path:
             parsed.path &= "/raw"
 
