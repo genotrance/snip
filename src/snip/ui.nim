@@ -81,7 +81,7 @@ iterator tokenizer(chunk: string): string {.inline.} =
     var squote = false
     for ch in chunk:
         if ch == '"':
-            if quote == false:
+            if not quote:
                 if tok != "":
                     yield tok
                     tok = ""
@@ -93,7 +93,7 @@ iterator tokenizer(chunk: string): string {.inline.} =
                 yield tok
                 tok = ""
         elif ch == '\'':
-            if squote == false:
+            if not squote:
                 if tok != "":
                     yield tok
                     tok = ""
@@ -106,7 +106,9 @@ iterator tokenizer(chunk: string): string {.inline.} =
                 tok = ""
         elif quote or squote:
             tok &= ch
-        elif ch in "`-=[];,/~!@#$%^&*()_+{}:<>? ":
+        elif ch in {'`', '-', '=', '[', ']', ';', ',', '/', '~', '!',
+                    '@', '#', '$', '%', '^', '&', '*', '(', ')', '_',
+                    '+', '{', '}', ':', '<', '>', '?', ' '}:
             if tok != "":
                 yield tok
                 tok = ""

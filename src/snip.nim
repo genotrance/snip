@@ -32,15 +32,15 @@ Flags:
 proc help() =
     echo HELP
 
-    for mode in MODES.keys():
-        echo "    --" & mode & "\t\t" & MODES[mode]["name"]
+    for modeName, mode in MODES:
+        echo "    --", modeName, "\t\t", mode["name"]
 
 proc parseCli() =
     let params = commandLineParams()
     for param in params:
         if param == "--debug":
             DEBUG = true
-        elif param in @["-h", "--help", "-?", "/?", "/h"]:
+        elif param in ["-h", "--help", "-?", "/?", "/h"]:
             help()
             quit()
         elif param == "--map":
@@ -49,13 +49,13 @@ proc parseCli() =
             quit()
         elif param == "--act":
             echo "ACTIONS:"
-            for en in ACTIONS.items():
-                echo "  " & $en
+            for en in ACTIONS:
+                echo "  ", en
             quit()
         elif param == "--key":
             echo "KEYS:"
-            for en in KEYS.items():
-                echo "  " & $en
+            for en in KEYS:
+                echo "  ", en
             quit()
         elif param.replace("--", "") in toSeq(MODES.keys):
             MODE = param.replace("--", "")

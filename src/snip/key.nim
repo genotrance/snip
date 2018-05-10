@@ -47,14 +47,16 @@ proc getDialogKey*(max=1, nl=true): string =
         if ready:
             if KEYMAP.hasKey(code):
                 let key = KEYMAP[code]
-                if key in [ENTER, CTRL_ENTER]:
+                case key
+                of ENTER, CTRL_ENTER:
                     return
-                elif key == BACKSPACE:
+                of BACKSPACE:
                     if result.len() != 0:
                         result = result.substr(0, result.len()-2)
                         eraseLeftDialog()
-                elif key in [ESC, CTRL_C]:
+                of ESC, CTRL_C:
                     return ""
+                else: discard
             else:
                 if result.len() < max:
                     let rcode = code.parseInt().char
