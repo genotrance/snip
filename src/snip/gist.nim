@@ -54,7 +54,7 @@ proc adjustUrl(url: string): string =
         if "raw" notin parsed.path:
             parsed.path &= "/raw"
 
-    if parsed.hostname in @["github.com", "www.github.com"]:
+    if parsed.hostname in ["github.com", "www.github.com"]:
         parsed.path = parsed.path.replace("/blob/", "/raw/")
 
     return $parsed

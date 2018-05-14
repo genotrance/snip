@@ -10,7 +10,7 @@ var BKEYMAP = initTable[string, KEYS]()
 var i = 0
 echo "Press ESC for key-combos that don't get detected\n"
 for en in KEYS.items():
-    if en in @[CTRL_C, CTRL_Q, CTRL_S, CTRL_Z]:
+    if en in {CTRL_C, CTRL_Q, CTRL_S, CTRL_Z}:
         continue
     
     stdout.write "Enter " & $en & ": "
