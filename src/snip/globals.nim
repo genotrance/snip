@@ -46,7 +46,7 @@ var LOADTIME*: Time
 var MONITOR* = false
 
 template log*(str: string) =
-    let f = open("snip.log", fmAppend)
-    f.writeLine(str)
-    f.flushFile()
-    f.close()
+  let f = open("snip.log", fmAppend)
+  f.writeLine(str)
+  f.flushFile()
+  f.close()

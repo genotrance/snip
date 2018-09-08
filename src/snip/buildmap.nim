@@ -10,29 +10,29 @@ var BKEYMAP = initTable[string, KEYS]()
 var i = 0
 echo "Press ESC for key-combos that don't get detected\n"
 for en in KEYS.items():
-    if en in {CTRL_C, CTRL_Q, CTRL_S, CTRL_Z}:
-        continue
-    
-    stdout.write "Enter " & $en & ": "
+  if en in {CTRL_C, CTRL_Q, CTRL_S, CTRL_Z}:
+    continue
 
-    let try1 = getKey()
+  stdout.write "Enter " & $en & ": "
 
-    var add = ""
-    if try1 == "27" and OUTPUT.len() != 0:
-        add = "# " & $en & " = ?"
-    else:
-        add = $en & " = " & try1
+  let try1 = getKey()
 
-    if BKEYMAP.hasKey(try1) and try1 != "27":
-        add = "# " & add & " - duplicate of " & $BKEYMAP[try1]
-    else:
-        BKEYMAP[try1] = en
+  var add = ""
+  if try1 == "27" and OUTPUT.len() != 0:
+    add = "# " & $en & " = ?"
+  else:
+    add = $en & " = " & try1
 
-    OUTPUT.add(add)
+  if BKEYMAP.hasKey(try1) and try1 != "27":
+    add = "# " & add & " - duplicate of " & $BKEYMAP[try1]
+  else:
+    BKEYMAP[try1] = en
 
-    eraseLine()
+  OUTPUT.add(add)
 
-    i += 1
+  eraseLine()
+
+  i += 1
 
 for i in OUTPUT:
-    echo i
+  echo i
