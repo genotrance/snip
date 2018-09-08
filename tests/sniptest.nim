@@ -64,8 +64,7 @@ for i in 0 .. 30:
 # Toggle line numbers
 # Newline scrolls
 # Display and scroll output window
-# Delete and backspace test
-    """)
+# Delete and backspace test""")
     sleep(750)
 
     # Line numbers

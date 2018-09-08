@@ -200,6 +200,10 @@ proc doHelp*() =
 proc doLoad*(src: string, build=true) =
     FILENAME = ""
     ERRORINFO = (-1, -1)
+    COFFSET = 0
+    LCOFFSET = 0
+    WOFFSET = 0
+    LWOFFSET = 0
     if fileExists(src):
         FILENAME = src.expandFilename()
         BUFFER = FILENAME.readFile().splitLines()
@@ -359,19 +363,28 @@ proc eraseRightLine*() =
 
 # Adding chars
 
+proc getLeadingSpaces(line: string): string =
+  result = ""
+  for i in line:
+    if i == ' ':
+      result &= i
+    else:
+      break
+
 proc addNewline*() =
     if COL <= BUFLINE.len():
+        let spaces = getLeadingSpaces(BUFLINE)
         let br = BUFLINE.substr(COL)
         BUFLINE = BUFLINE.substr(0, COL-1)
         if COL == BUFLINE.len()-1:
-            BUFFER.insert("", LINE+COFFSET+1)
+            BUFFER.insert(spaces, LINE+COFFSET+1)
         else:
-            BUFFER.insert(br, LINE+COFFSET+1)
+            BUFFER.insert(spaces & br, LINE+COFFSET+1)
         if LINE == HEIGHT-WINDOW-1:
             COFFSET += 1
         else:
             LINE += 1
-        COL = 0
+        COL = len(spaces)
         redraw()
 
 proc addChar*() =
