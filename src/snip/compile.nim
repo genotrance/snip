@@ -26,69 +26,64 @@ var ERRORS = initTable[string, string]()
 MODES["nc"] = {
   "name": "Nim C",
   "codefile": "ctest.nim",
-  "compile": "nim c",
-  "execute": "./ctest",
+  "compile": "nim c $#",
   "language": "nim"
 }.toTable()
 
 MODES["ns"] = {
   "name": "Nim Script",
   "codefile": "nimstest.nims",
-  "execute": "nim e",
+  "execute": "nim e $#.nims",
   "language": "nim"
 }.toTable()
 
 MODES["ncp"] = {
   "name": "Nim CPP",
   "codefile": "cpptest.nim",
-  "compile": "nim cpp",
-  "execute": "./cpptest",
+  "compile": "nim cpp $#",
   "language": "nim"
 }.toTable()
 
 MODES["njc"] = {
   "name": "Nim ObjC",
   "codefile": "objctest.nim",
-  "compile": "nim objc",
-  "execute": "./objctest",
+  "compile": "nim objc $#",
   "language": "nim"
 }.toTable()
 
 MODES["njs"] = {
   "name": "Nim JS",
   "codefile": "jstest.nim",
-  "compile": "nim js -d:nodejs -o:jstest.js",
-  "execute": "nodejs jstest.js",
+  "compile": "nim js -d:nodejs -o:jstest.js $#",
+  "execute": "node $#.js",
   "language": "nim"
 }.toTable()
 
 MODES["py"] = {
   "name": "Python",
   "codefile": "test.py",
-  "execute": "python",
+  "execute": "python $#.py",
   "language": "python"
 }.toTable()
 
 MODES["js"] = {
   "name": "NodeJS",
   "codefile": "test.js",
-  "execute": "node",
+  "execute": "node $#.js",
   "language": "javascript"
 }.toTable()
 
 MODES["gcc"] = {
   "name": "C - gcc",
   "codefile": "test.c",
-  "compile": "gcc -o test -Wall",
-  "execute": "./test",
+  "compile": "gcc -o test -Wall $#",
   "language": "c"
 }.toTable()
 
 MODES["g++"] = {
   "name": "C++ - g++",
   "codefile": "test.cpp",
-  "compile": "g++ -o test -Wall",
-  "execute": "./test",
+  "compile": "g++ -o test -Wall $#",
   "language": "cpp"
 }.toTable()
 
@@ -263,26 +258,30 @@ proc run(buffer, tempdir: string, modeinfo: Table[string, string]): string =
   if modeinfo.hasKey("execute"):
     execute = modeinfo["execute"]
 
-  if compile == "":
-    if execute == "":
-      return
-    compile = execute
-    execute = ""
+  if compile == "" and execute == "":
+    return
 
   withDir tempdir:
     let f = open(codefile, fmWrite)
     f.write(buffer)
     f.close()
 
+    if compile != "":
+      try:
+        (result, error) = execCmdEx(compile % codefile)
+      except OSError:
+        result = "Failed to compile"
+        return
+
+  if error == 0:
+    if execute != "":
+      execute = execute % (tempdir/codefile.splitFile().name)
+    else:
+      execute = tempdir/codefile.splitFile().name
     try:
-      (result, error) = execCmdEx(compile & " " & codefile)
-      if error == 0 and execute != "":
-        try:
-          (result, error) = execCmdEx(execute)
-        except OSError:
-          result = "Failed to execute"
+      (result, error) = execCmdEx(execute)
     except OSError:
-      result = "Failed to compile"
+      result = "Failed to execute"
 
 proc compile*() =
   if BUFFER != LASTBUFFER:
