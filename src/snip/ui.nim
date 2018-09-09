@@ -17,10 +17,7 @@ template writeFlush(str: string) =
   stdout.flushFile()
 
 proc setCursorPosPortable(x, y: int) =
-  when not defined(windows):
-    setCursorPos(x+1, y+1)
-  else:
-    setCursorPos(x, y)
+  setCursorPos(x, y)
 
 proc clearScreen*() {.inline.} =
   when defined(windows):

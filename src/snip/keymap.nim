@@ -58,7 +58,7 @@ var ACTIONMAP* = initTable[ACTIONS, proc()]()
 var KEYMAP* = initTable[string, KEYS]()
 var KEYACTION* = initTable[KEYS, ACTIONS]()
 
-const TERMS = @["cygwin", "macos", "putty", "windows", "xterm"]
+const TERMS = @["cygwin", "macos", "putty", "windows", "winssh", "xterm"]
 const KEYMAPSTRING_TABLE = (block:
   var kmtb = initTable[string, string]()
   for term in TERMS:
@@ -166,11 +166,14 @@ proc loadMap(mapstring: string, handler: proc(name, value: string)) =
         quit()
 
 proc loadMaps*() =
+  let win = @["windows", "winssh"]
   when defined(windows):
-    loadMap(KEYMAPSTRING_TABLE["windows"], keyMapHandler)
+    for km in KEYMAPSTRING_TABLE.keys():
+      if km in win:
+        loadMap(KEYMAPSTRING_TABLE[km], keyMapHandler)
   else:
     for km in KEYMAPSTRING_TABLE.keys():
-      if km != "windows":
+      if km notin win:
         loadMap(KEYMAPSTRING_TABLE[km], keyMapHandler)
 
   if fileExists(getAppDir() / "keymap.txt"):

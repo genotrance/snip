@@ -212,7 +212,7 @@ COMMENTS["c"] = @["//"]
 COMMENTS["cpp"] = @["//"]
 
 ERRORS["nim"] = """[$#]+\({\d+}[\,][ ]\d+\)[ .]+"""
-ERRORS["python"] = """[File ]+["][$#]+["][\, line]+{\d+}"""
+ERRORS["python"] = """[File ]+[" \\/:_\-\.a-zA-Z0-9]+', line '{\d+}"""
 ERRORS["c"] = """[$#]+[:]{\d+}[:]{\d+}[:][ error]"""
 ERRORS["cpp"] = """[$#]+[:]{\d+}[:]{\d+}[:][ error]"""
 
