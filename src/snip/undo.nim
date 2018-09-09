@@ -9,6 +9,8 @@ var LASTCURSOR: seq[int] = @[0, 0]
 
 proc backup*() {.inline.} =
   if LASTBUFFER != BUFFER:
+    REDO = @[]
+    CREDO = @[]
     HISTORY.add(LASTBUFFER)
     CHISTORY.add(LASTCURSOR)
     if HISTORY.len() > MAXHISTORY:
@@ -26,9 +28,11 @@ proc doUndo*() =
     REDO.add(BUFFER)
     CREDO.add(@[LINE, COL])
     BUFFER = HISTORY.pop()
+    LASTBUFFER = BUFFER
     let ch = CHISTORY.pop()
     LINE = ch[0]
     COL = ch[1]
+    LASTCURSOR = @[LINE, COL]
     redraw()
 
 proc doRedo*() =
@@ -36,7 +40,9 @@ proc doRedo*() =
     HISTORY.add(BUFFER)
     CHISTORY.add(@[LINE, COL])
     BUFFER = REDO.pop()
+    LASTBUFFER = BUFFER
     let cr = CREDO.pop()
     LINE = cr[0]
     COL = cr[1]
+    LASTCURSOR = @[LINE, COL]
     redraw()
