@@ -388,14 +388,15 @@ proc addNewline*() =
     redraw()
 
 proc addChar*() =
+  if BUFLINE.len() == WIDTH-MARGIN-1:
+    return
+
   if COL == BUFLINE.len():
     BUFLINE &= LASTCHAR
   elif COL < BUFLINE.len():
     let br = BUFLINE.substr(COL)
     BUFLINE = BUFLINE.substr(0, COL-1) & LASTCHAR & br
   COL += 1
-  if COL > WIDTH-MARGIN-1:
-    COL = WIDTH-MARGIN-1
   redrawLine()
 
 proc addSpace() =

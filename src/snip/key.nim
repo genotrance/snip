@@ -6,7 +6,7 @@ import ./globals
 import ./keymap
 import ./ui
 
-var KCH*: Channel[string]
+var KCH*: Channel[seq[string]]
 KCH.open()
 
 when defined(windows):
@@ -23,78 +23,94 @@ else:
   proc cleanExit*() =
     disable_raw_mode()
 
-proc getKey*(): string {.inline.} =
-  result = ""
+proc getKey*(): seq[string] {.inline.} =
+  result = @[]
   when not defined(windows):
     enable_raw_mode()
 
-  LASTCHAR = getch()
-  result = $LASTCHAR.int
+  var
+    lchr: char
+    code = ""
+
   while kbhit() != 0:
-    LASTCHAR = getch()
-    result &= $LASTCHAR.int
+    lchr = getch()
+    if lchr.int < 32 or lchr.int > 126:
+      code = $lchr.int
+      if lchr.int in {0, 27, 224}:
+        while kbhit() != 0:
+          lchr = getch()
+          code &= $lchr.int
+      result.add(code)
+    else:
+      result.add($lchr)
 
   when not defined(windows):
     disable_raw_mode()
 
 proc getDialogKey*(max=1, nl=true): string =
   result = ""
-  var ready: bool
-  var code: string
+  var
+    ready: bool
+    codes: seq[string]
+
   while true:
-    (ready, code) = KCH.tryRecv()
+    (ready, codes) = KCH.tryRecv()
 
     if ready:
-      if KEYMAP.hasKey(code):
-        let key = KEYMAP[code]
-        case key
-        of ENTER, CTRL_ENTER:
-          return
-        of BACKSPACE:
-          if result.len() != 0:
-            result = result.substr(0, result.len()-2)
-            eraseLeftDialog()
-        of ESC, CTRL_C:
-          return ""
-        else: discard
-      else:
-        if result.len() < max:
-          let rcode = code.parseInt().char
-          result &= rcode
-          stdout.write(rcode)
-          stdout.flushFile()
-          if not nl:
-            break
+      for code in codes:
+        if KEYMAP.hasKey(code):
+          let key = KEYMAP[code]
+          case key
+          of ENTER, CTRL_ENTER:
+            return
+          of BACKSPACE:
+            if result.len() != 0:
+              result = result.substr(0, result.len()-2)
+              eraseLeftDialog()
+          of ESC, CTRL_C:
+            return ""
+          else: discard
+        else:
+          if result.len() < max:
+            let rcode = code.parseInt().char
+            result &= rcode
+            stdout.write(rcode)
+            stdout.flushFile()
+            if not nl:
+              break
 
 proc handleKey*() {.inline.} =
-  var (ready, code) = KCH.tryRecv()
+  var (ready, codes) = KCH.tryRecv()
 
   if ready:
-    if KEYMAP.hasKey(code):
-      let key = KEYMAP[code]
-      if KEYACTION.hasKey(key):
-        let ac = KEYACTION[key]
-        if ACTIONMAP.hasKey(ac):
-          ACTIONMAP[ac]()
-    else:
-      ACTIONMAP[DEFAULT]()
+    for code in codes:
+      if KEYMAP.hasKey(code):
+        let key = KEYMAP[code]
+        if KEYACTION.hasKey(key):
+          let ac = KEYACTION[key]
+          if ACTIONMAP.hasKey(ac):
+            ACTIONMAP[ac]()
+      else:
+        LASTCHAR = code[0]
+        ACTIONMAP[DEFAULT]()
     lcol()
 
 proc startKey() {.thread.} =
-  var code = ""
   while true:
-    code = getKey()
-    if code != "":
-      if not KCH.trySend(code):
-        echo "Unable to send key"
+    var codes = getKey()
+    if codes.len() != 0:
+      if not KCH.trySend(codes):
+        echo "Unable to send key(s)"
 
 proc setupKey*() =
   spawn startKey()
 
 when isMainModule:
-  while true:
-    var code = getKey()
-    if code != "":
-      echo code
-    if code == "27":
-      break
+  var exit = false
+  while not exit:
+    for code in getKey():
+      if code != "":
+        echo "$#" % code
+      if code.strip() == "27":
+        exit = true
+        break
