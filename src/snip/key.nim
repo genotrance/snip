@@ -35,14 +35,14 @@ proc getKey*(): seq[string] {.inline.} =
   while kbhit() != 0:
     lchr = getch()
     if lchr.int < 32 or lchr.int > 126:
-      code = $lchr.int
+      code = $(lchr.int)
       if lchr.int in {0, 27, 224}:
         while kbhit() != 0:
           lchr = getch()
-          code &= $lchr.int
+          code &= $(lchr.int)
       result.add(code)
     else:
-      result.add($lchr)
+      result.add($(lchr.int))
 
   when not defined(windows):
     disable_raw_mode()
@@ -91,7 +91,7 @@ proc handleKey*() {.inline.} =
           if ACTIONMAP.hasKey(ac):
             ACTIONMAP[ac]()
       else:
-        LASTCHAR = code[0]
+        LASTCHAR = code.parseInt().char
         ACTIONMAP[DEFAULT]()
     lcol()
 
