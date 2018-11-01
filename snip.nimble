@@ -1,6 +1,6 @@
 # Package
 
-version     = "0.2.2"
+version     = "0.2.3"
 author      = "genotrance"
 description = "Text editor to speed up testing code snippets"
 license     = "MIT"
