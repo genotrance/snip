@@ -1,6 +1,8 @@
+import os
 import strutils
 import tables
 import threadpool
+import times
 
 import ./globals
 import ./keymap
@@ -96,11 +98,17 @@ proc handleKey*() {.inline.} =
     lcol()
 
 proc startKey() {.thread.} =
+  var
+    last = getTime()
   while true:
     var codes = getKey()
     if codes.len() != 0:
+      last = getTime()
       if not KCH.trySend(codes):
         echo "Unable to send key(s)"
+
+    if getTime() - last > initDuration(milliseconds=1):
+      sleep(5)
 
 proc setupKey*() =
   spawn startKey()
