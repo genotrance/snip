@@ -1,6 +1,5 @@
 import algorithm
 import os
-import ospaths
 import osproc
 import pegs
 import strutils

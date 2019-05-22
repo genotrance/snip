@@ -1,6 +1,5 @@
 import algorithm
 import os
-import ospaths
 import strutils
 import tables
 
