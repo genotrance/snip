@@ -141,7 +141,7 @@ proc keyActionHandler(name, value: string) =
     quit()
   KEYACTION[key] = action
 
-proc loadMap(mapstring: string, handler: proc(name, value: string)) =
+proc loadMap*(mapstring: string, handler: proc(name, value: string)) =
   for ln in mapstring.splitLines():
     let line = ln.strip()
     if line.len() == 0 or line[0] == '#':

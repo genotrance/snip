@@ -12,9 +12,34 @@ when defined(windows):
 else:
   var BRIGHT = true
 
+var COLORSTRING = """
+  default = fgWhite
+  dialog = fgYellow
+  error = fgRed
+  linenumber = fgYellow
+  status = fgYellow
+
+  comment = fgMagenta
+  keyword = fgCyan
+  number = fgGreen
+  string = fgRed
+"""
+
+var COLORTABLE = newTable[string, ForegroundColor]()
+
 template writeFlush(str: string) =
   stdout.write(str)
   stdout.flushFile()
+
+proc colorHandler(name, value: string) =
+  COLORTABLE[name] = parseEnum[ForegroundColor](value)
+
+proc loadColors*() =
+  loadMap(COLORSTRING, colorHandler)
+  if fileExists(getAppDir() / "colors.txt"):
+    COLORSTRING = "colors.txt".readFile()
+
+  loadMap(COLORSTRING, colorHandler)
 
 proc setCursorPosPortable(x, y: int) =
   setCursorPos(x, y)
@@ -31,7 +56,7 @@ proc clearScreen*() {.inline.} =
 proc dialog*(text: string) =
   setCursorPosPortable(0, HEIGHT-1)
   eraseLine()
-  setForegroundColor(fgYellow, BRIGHT)
+  setForegroundColor(COLORTABLE["dialog"], BRIGHT)
   writeFlush(text)
 
 proc popupMsg*(text: string) =
@@ -48,10 +73,10 @@ proc lcol*() =
   hideCursor()
   setCursorPosPortable(0, HEIGHT-1)
   eraseLine()
-  setForegroundColor(fgYellow, BRIGHT)
+  setForegroundColor(COLORTABLE["status"], BRIGHT)
   var fn = if FILENAME != "": " | " & FILENAME else: ""
   writeFlush("$#x$# | $# | $# = HELP" % [$(LINE+COFFSET+1), $(COL+1), MODES[MODE]["name"], $getKeyFromAction(HELP)] & fn)
-  setForegroundColor(fgWhite)
+  setForegroundColor(COLORTABLE["default"])
   setCursorPosPortable(COL+MARGIN, LINE)
   if WINDOW != HEIGHT-1:
     showCursor()
@@ -120,26 +145,26 @@ proc writeTerm(line: string) =
   eraseLine()
   if MARGIN != 0:
     if ERRORINFO.line == LINE+COFFSET:
-      setForegroundColor(fgRed, BRIGHT)
+      setForegroundColor(COLORTABLE["error"], BRIGHT)
     else:
-      setForegroundColor(fgYellow, BRIGHT)
+      setForegroundColor(COLORTABLE["linenumber"], BRIGHT)
     stdout.write(lineno(LINE+COFFSET, ERRORINFO.line))
-    setForegroundColor(fgWhite)
+    setForegroundColor(COLORTABLE["default"])
   var comment = false
   for tok in tokenizer(line):
     if isLanguage("comment", tok) or comment == true:
       comment = true
-      setForegroundColor(fgMagenta, BRIGHT)
+      setForegroundColor(COLORTABLE["comment"], BRIGHT)
     elif isLanguage("keyword", tok):
-      setForegroundColor(fgCyan, BRIGHT)
+      setForegroundColor(COLORTABLE["keyword"], BRIGHT)
     elif tok.replace(".", "").isDigit():
-      setForegroundColor(fgGreen, BRIGHT)
+      setForegroundColor(COLORTABLE["number"], BRIGHT)
     # elif tok.isAlphaNumeric():
-    #   setForegroundColor(fgYellow, BRIGHT)
+    #   setForegroundColor(COLORTABLE["alpha"], BRIGHT)
     elif tok[0] in ['"', '\''] and tok[0] == tok[tok.len()-1]:
-      setForegroundColor(fgRed, BRIGHT)
+      setForegroundColor(COLORTABLE["string"], BRIGHT)
     stdout.write(tok)
-    setForegroundColor(fgWhite)
+    setForegroundColor(COLORTABLE["default"])
   stdout.flushFile()
 
 proc writeCode*() {.inline.} =
@@ -172,14 +197,14 @@ proc writeOutputLines(output: seq[string], err = -1, offset=0) =
   for line in output:
     if MARGIN != 0:
       if err == i:
-        setForegroundColor(fgRed, BRIGHT)
+        setForegroundColor(COLORTABLE["error"], BRIGHT)
       else:
-        setForegroundColor(fgYellow, BRIGHT)
+        setForegroundColor(COLORTABLE["linenumber"], BRIGHT)
       stdout.write(lineno(offset+i, err))
     if err == i:
-      setForegroundColor(fgRed)
+      setForegroundColor(COLORTABLE["error"])
     else:
-      setForegroundColor(fgWhite)
+      setForegroundColor(COLORTABLE["default"])
     echo line
     i += 1
 

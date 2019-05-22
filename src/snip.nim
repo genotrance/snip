@@ -68,6 +68,7 @@ proc init() =
   clearScreen()
   loadMaps()
   loadActions()
+  loadColors()
   parseCli()
   setupCompiler()
   setupKey()

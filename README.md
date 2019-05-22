@@ -58,6 +58,10 @@ __Key Mapping__
 
 The default key mapping can be listed with the ```--map``` flag. If a different mapping is preferred, a ```keymap.txt``` file can be created in the same directory as the ```snip``` executable with a KEY = ACTION mapping. List of all available editor actions can be listed with the ```--act``` flag. A list of all special keys can be seen with the ```--key``` flag.
 
+__Colors__
+
+The default colors can be overridden with a ```colors.txt``` file in the same directory as ```snip```. Format should be the same as the default definitions in ```ui.nim```.
+
 __Feedback__
 
 ```snip``` is a work in progress and any feedback or suggestions are welcome. It is hosted on [GitHub](https://github.com/genotrance/snip) with an MIT license so issues, forks and PRs are most appreciated.
