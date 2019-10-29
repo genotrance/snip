@@ -2,6 +2,7 @@ import os
 import strutils
 import tables
 import terminal
+import sequtils
 
 import ./compile
 import ./globals
@@ -157,7 +158,7 @@ proc writeTerm(line: string) =
       setForegroundColor(COLORTABLE["comment"], BRIGHT)
     elif isLanguage("keyword", tok):
       setForegroundColor(COLORTABLE["keyword"], BRIGHT)
-    elif tok.replace(".", "").isDigit():
+    elif tok.replace(".", "").all(isDigit):
       setForegroundColor(COLORTABLE["number"], BRIGHT)
     # elif tok.isAlphaNumeric():
     #   setForegroundColor(COLORTABLE["alpha"], BRIGHT)
