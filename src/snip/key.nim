@@ -38,7 +38,7 @@ proc getKey*(): seq[string] {.inline.} =
     lchr = getch()
     if lchr.int < 32 or lchr.int > 126:
       code = $(lchr.int)
-      if lchr.int in {0, 27, 224}:
+      if lchr.int in [0, 27, 224]:
         while kbhit() != 0:
           lchr = getch()
           code &= $(lchr.int)
